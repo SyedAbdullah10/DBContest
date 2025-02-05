@@ -1,0 +1,9 @@
+1) Platforms:
+   MySQL
+   SQL Lite
+   PostgreSQL
+
+2)Anyone can create a contest
+
+3) Results will show after the contest has completed
+
