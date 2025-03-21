@@ -1,0 +1,150 @@
+.logo {
+  animation: zoom 2s ease-in-out infinite;
+}
+
+@keyframes zoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+} 
+
+/* Glitch effect for loading animation */
+.glitch {
+  position: relative;
+  color: white;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -1px 0 red;
+  animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: 1px 0 blue;
+  animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+  0% {
+    clip-path: inset(20% 0 80% 0);
+  }
+  20% {
+    clip-path: inset(60% 0 1% 0);
+  }
+  40% {
+    clip-path: inset(25% 0 58% 0);
+  }
+  60% {
+    clip-path: inset(94% 0 7% 0);
+  }
+  80% {
+    clip-path: inset(58% 0 43% 0);
+  }
+  100% {
+    clip-path: inset(3% 0 46% 0);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0% {
+    clip-path: inset(76% 0 21% 0);
+  }
+  20% {
+    clip-path: inset(38% 0 40% 0);
+  }
+  40% {
+    clip-path: inset(73% 0 4% 0);
+  }
+  60% {
+    clip-path: inset(59% 0 3% 0);
+  }
+  80% {
+    clip-path: inset(10% 0 84% 0);
+  }
+  100% {
+    clip-path: inset(66% 0 25% 0);
+  }
+}
+
+/* Loading animation effects */
+.scanline {
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, rgba(220, 38, 38, 0.8), transparent);
+  position: absolute;
+  z-index: 9;
+  animation: scan 4s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+  will-change: top;
+  top: 0;
+  transform: translateZ(0);
+}
+
+@keyframes scan {
+  0% {
+    top: 0%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.terminal {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  will-change: transform;
+  transition: all 0.3s ease;
+}
+
+.terminal::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  opacity: 0.8;
+  /* Reduced flicker animation frequency and intensity */
+  animation: subtle-flicker 2s infinite;
+}
+
+@keyframes subtle-flicker {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.7; }
+}
+
+/* Smooth progress bar animation */
+.smoothProgress {
+  transition: width 0.05s linear; /* Faster transition for more immediate feedback */
+  will-change: width;
+  position: relative;
+} 
