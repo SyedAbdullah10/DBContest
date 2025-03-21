@@ -1,0 +1,39 @@
+TABLES:
+	1)Admins
+		-)ID
+		-)Username
+		-)Password
+	2)Users
+		-)id
+		-)username
+		-)password
+	3)Contest
+		-)id
+		-)name
+		-)Date
+		-)Start Time
+		-)End Time
+		-)Participants[]
+	4)contest_number_[table_name]
+		-)id
+		-)DDL
+		-)Contest_id(foreign key)
+	5)Questions
+		-)Qid
+		-)Question_Text
+		-)Contest_ID
+		-)Answer
+	6)Scoreboard
+		-)ContestID
+		-)Sid
+		-)scoreboards[]
+			--)s_board = {
+   				participant: // single participant
+   				scores: [1,2,3,4]
+   				attempts: [0,1,2,1]
+   				timestamps: [3,4,5,6]
+			}
+
+			field in db = s_board[]
+
+	
