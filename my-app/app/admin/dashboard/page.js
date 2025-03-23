@@ -4,7 +4,8 @@ import { FaUsers, FaPlusCircle, FaClipboardList } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Logo from "@/app/Components/Logo";
 import { motion } from "framer-motion";
-
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
   return (
     <div
@@ -83,6 +84,21 @@ const ContestTabs = () => {
 
 const AdminDashboard = () => {
   const router = useRouter();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push('/admin');
+    },
+  });
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (!session || session.user.role !== "admin") {
+    return redirect("/admin"); // useSession will handle the redirect
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}

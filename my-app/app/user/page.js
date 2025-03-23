@@ -4,6 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaUser, FaLock, FaSignInAlt } from "react-icons/fa";
 import Image from "next/image";
 import styles from "./styles.module.css";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { getSession } from "next-auth/react";
+
 
 // Add keyframes animation at the top of the file
 const pulseRotateAnimation = `
@@ -64,7 +68,7 @@ const loadingAnimation = `
 }
 `;
 
-const InputField = ({ Icon, type, placeholder }) => {
+const InputField = ({ Icon, type, placeholder, value, onChange }) => {
   return (
     <div className="w-full">
       <div className="flex items-center bg-black/40 backdrop-blur-lg shadow-lg rounded-full p-4 hover:bg-black/50 transition-all border border-red-500/30">
@@ -74,6 +78,8 @@ const InputField = ({ Icon, type, placeholder }) => {
         <input
           type={type}
           placeholder={placeholder}
+          value={value}
+          onChange={onChange}
           className="flex-1 bg-transparent ml-4 p-2 text-white placeholder-white/60 text-lg outline-none"
         />
       </div>
@@ -81,10 +87,14 @@ const InputField = ({ Icon, type, placeholder }) => {
   );
 };
 
-const ButtonField = ({ Icon, btnText }) => {
+const ButtonField = ({ Icon, btnText, type, onClick }) => {
   return (
     <div className="w-full">
-      <button className="flex items-center justify-center gap-3 w-full rounded-full p-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-xl font-bold shadow-lg hover:from-red-700 hover:to-red-800 transition-all border border-red-400/30">
+      <button 
+        className="flex items-center justify-center gap-3 w-full rounded-full p-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-xl font-bold shadow-lg hover:from-red-700 hover:to-red-800 transition-all border border-red-400/30"
+        type={type}
+        onClick={onClick}
+      >
         <Icon className="text-xl" />
         {btnText}
       </button>
@@ -127,6 +137,10 @@ const UserLogin = () => {
   const [showProcessing, setShowProcessing] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [bufferPercent, setBufferPercent] = useState(0);
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
   // Use ref for processing state instead of useState for more reliable protection
   const isProcessingRef = useRef(false);
@@ -262,6 +276,36 @@ const UserLogin = () => {
     }, totalAnimationTime + 100); // Add slightly more buffer
 
     timersRef.current.processingTimeout = processingTimeout;
+  };
+
+  // Move handleSubmit inside the component
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const result = await signIn("credentials", {
+        identifier,
+        password,
+        redirect: false,
+        role: 'user' // Add this to route to user login
+      });
+  
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        // Check role before redirecting
+        const session = await getSession();
+        if (session?.user?.role === 'user') {
+          router.push("/user/dashboard");
+        } else {
+          setError("Unauthorized access");
+          router.push("/user");
+        }
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("An error occurred during login");
+    }
   };
 
   return (
@@ -435,16 +479,34 @@ const UserLogin = () => {
                   USER LOGIN
                 </h1>
               </div>
+  
 
-              <div className="w-full space-y-6">
-                <InputField Icon={FaUser} type="text" placeholder="Username" />
+              <form onSubmit={handleSubmit} className="w-full space-y-6">
+                <InputField 
+                  Icon={FaUser} 
+                  type="text" 
+                  placeholder="Username" 
+                  value={identifier} 
+                  onChange={(e) => setIdentifier(e.target.value)} 
+                />
                 <InputField
                   Icon={FaLock}
                   type="password"
                   placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
-                <ButtonField Icon={FaSignInAlt} btnText="LOGIN" />
-              </div>
+                <ButtonField 
+                  Icon={FaSignInAlt} 
+                  btnText="LOGIN" 
+                  type="submit"
+                />
+                {error && (
+                  <div className="text-red-500 text-sm mt-2 text-center">
+                    {error}
+                  </div>
+                )}
+              </form>
 
               <a
                 href="#"

@@ -10,12 +10,17 @@
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.8.0",
+    "@supabase/supabase-js": "^2.49.1",
     "@uiw/codemirror-theme-dracula": "^4.23.10",
     "@uiw/react-codemirror": "^4.23.10",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "codemirror": "^6.0.1",
+    "dotenv": "^16.4.7",
     "framer-motion": "^12.5.0",
     "lucide-react": "^0.483.0",
     "next": "15.1.6",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0"

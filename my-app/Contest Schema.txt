@@ -7,7 +7,7 @@ TABLES:
 		-)id
 		-)username
 		-)password
-	3)Contest
+	3)Contests
 		-)id
 		-)name
 		-)Date
@@ -26,7 +26,7 @@ TABLES:
 	6)Scoreboard
 		-)ContestID
 		-)Sid
-		-)scoreboards[]
+		-)scores[]
 			--)s_board = {
    				participant: // single participant
    				scores: [1,2,3,4]

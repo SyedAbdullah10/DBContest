@@ -1,11 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { FaUser, FaLock, FaSignInAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Logo from "../Components/Logo";
+import { signIn } from "next-auth/react";
+import { getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-const InputField = ({ Icon, type, placeholder }) => {
+const InputField = ({ Icon, type, placeholder, value, onChange }) => {
   return (
     <div className="w-full">
       <div className="flex items-center bg-black/40 backdrop-blur-lg shadow-lg rounded-full py-3 px-5 hover:bg-black/50 transition-all border border-red-500/30">
@@ -15,6 +18,8 @@ const InputField = ({ Icon, type, placeholder }) => {
         <input
           type={type}
           placeholder={placeholder}
+          value={value}
+          onChange={onChange}
           className="flex-1 bg-transparent ml-4 p-2 text-white placeholder-white/60 text-lg outline-none"
         />
       </div>
@@ -22,10 +27,13 @@ const InputField = ({ Icon, type, placeholder }) => {
   );
 };
 
-const ButtonField = ({ Icon, btnText }) => {
+const ButtonField = ({ Icon, btnText, type, onClick }) => {
   return (
     <div className="w-full">
-      <button className="flex items-center justify-center gap-3 w-full rounded-full py-3 px-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-xl font-bold shadow-lg hover:from-red-700 hover:to-red-800 transition-all border border-red-400/30">
+      <button className="flex items-center justify-center gap-3 w-full rounded-full py-3 px-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-xl font-bold shadow-lg hover:from-red-700 hover:to-red-800 transition-all border border-red-400/30"
+        type={type}
+        onClick={onClick}
+      >
         <Icon className="text-xl" />
         {btnText}
       </button>
@@ -34,6 +42,39 @@ const ButtonField = ({ Icon, btnText }) => {
 };
 
 const AdminLogin = () => {
+  const router = useRouter();
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const result = await signIn("credentials", {
+        identifier,
+        password,
+        redirect: false,
+        role: 'admin' // Add this to route to admin login
+      });
+  
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        // Check role before redirecting
+        const session = await getSession();
+        if (session?.user?.role === 'admin') {
+          router.push("/admin/dashboard");
+        } else {
+          setError("Unauthorized access");
+          router.push("/admin");
+        }
+      }
+    } catch (error) {
+      setError("An error occurred during login");
+    }
+  };
+
   return (
     <main className="flex flex-col justify-center items-center h-screen w-full">
       {/* Login container with animation */}
@@ -52,9 +93,14 @@ const AdminLogin = () => {
         </div>
 
         <div className="w-full space-y-6">
-          <InputField Icon={FaUser} type="text" placeholder="Username" />
-          <InputField Icon={FaLock} type="password" placeholder="Password" />
-          <ButtonField Icon={FaSignInAlt} btnText="LOGIN" />
+          <InputField Icon={FaUser} type="text" placeholder="Username" value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
+          <InputField Icon={FaLock} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <ButtonField Icon={FaSignInAlt} btnText="LOGIN" type="submit" onClick={handleSubmit} />
+          {error && (
+                  <div className="text-red-500 text-sm mt-2 text-center">
+                    {error}
+                  </div>
+          )}
         </div>
 
         <a
