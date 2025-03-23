@@ -3,13 +3,45 @@ import { getToken } from "next-auth/jwt";
 
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const { pathname } = req.nextUrl;
 
-  // List of protected paths
-  const protectedPaths = ["/user/dashboard", "/admin/dashboard"];
+  // Define protected paths and their required roles
+  const protectedRoutes = {
+    "/user/dashboard": "user",
+    "/admin/dashboard": "admin"
+  };
 
-  if (protectedPaths.some((path) => req.nextUrl.pathname.startsWith(path))) {
-    if (!token) {  
+  // Check if the current path is protected
+  if (Object.keys(protectedRoutes).some(path => pathname.startsWith(path))) {
+    // If no token exists, redirect to appropriate login page
+    if (!token) {
+      if (pathname.startsWith("/admin")) {
+        return NextResponse.redirect(new URL("/admin", req.url));
+      }
       return NextResponse.redirect(new URL("/user", req.url));
+    }
+
+    // Check if user has the correct role for the path
+    const requiredRole = pathname.startsWith("/admin") ? "admin" : "user";
+    if (token.role !== requiredRole) {
+      // Redirect to appropriate login page based on attempted access
+      if (pathname.startsWith("/admin")) {
+        return NextResponse.redirect(new URL("/admin", req.url));
+      }
+      return NextResponse.redirect(new URL("/user", req.url));
+    }
+  }
+
+  // Allow access to login pages
+  if (pathname === "/admin" || pathname === "/user") {
+    if (token) {
+      // If already logged in, redirect to appropriate dashboard
+      if (token.role === "admin") {
+        return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+      }
+      if (token.role === "user") {
+        return NextResponse.redirect(new URL("/user/dashboard", req.url));
+      }
     }
   }
 
@@ -18,5 +50,11 @@ export async function middleware(req) {
 
 // Apply middleware to specific routes
 export const config = {
-  matcher: ["/user/:path*", "/admin/:path*"],
+  matcher: [
+    "/user",
+    "/user/dashboard",
+    "/admin",
+    "/admin/dashboard",
+    // Add any other routes that need protection
+  ]
 };

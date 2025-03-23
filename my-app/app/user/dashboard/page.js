@@ -1,9 +1,85 @@
 'use client';
-
-import { signOut } from "next-auth/react";
+import { useState } from "react";
+import { FaUsers, FaPlusCircle, FaClipboardList, FaSignOutAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import Logo from "@/app/Components/Logo";
+import { motion } from "framer-motion";
+import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
+
+const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
+  return (
+    <div
+      onClick={onClickHandler}
+      className="bg-black/40 backdrop-blur-lg shadow-lg p-6 rounded-2xl border border-red-500/30 hover:bg-black/50 hover:cursor-pointer hover:scale-105 transition-all"
+    >
+      <div className="flex items-center gap-4 mb-3">
+        <Icon className="text-red-500 text-3xl" />
+        <h2 className="text-white text-xl font-semibold">{title}</h2>
+      </div>
+      <p className="text-white/70 text-sm">{description}</p>
+    </div>
+  );
+};
+
+const ContestTabs = () => {
+  const [activeTab, setActiveTab] = useState("upcoming");
+  const contests = {
+    upcoming: [
+      { id: 1, title: "Spring Coding Challenge", date: "April 15, 2025" },
+      { id: 2, title: "AI Hackathon", date: "May 10, 2025" },
+    ],
+    ongoing: [
+      { id: 5, title: "Data Structures Contest", date: "March 25, 2025" },
+      { id: 6, title: "Web Development Sprint", date: "March 30, 2025" },
+    ],
+    finished: [
+      { id: 3, title: "Winter Data Science Contest", date: "March 5, 2025" },
+      { id: 4, title: "Cybersecurity CTF", date: "February 20, 2025" },
+    ],
+  };
+
+  return (
+    <div className="w-full max-w-3xl mx-auto mt-8">
+      <div className="flex mb-4 border-b border-red-500/50">
+        {["upcoming", "ongoing", "finished"].map((tab) => (
+          <button
+            key={tab}
+            className={`flex-1 text-lg font-semibold py-2 transition-all ${
+              activeTab === tab
+                ? "border-b-4 border-red-500 text-red-500"
+                : "text-white hover:text-red-400"
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab === "upcoming"
+              ? "Ongoing Contests"
+              : tab === "ongoing"
+              ? "Upcoming Contests"
+              : "Finished Contests"}
+          </button>
+        ))}
+      </div>
+
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {contests[activeTab].map((contest) => (
+          <div
+            key={contest.id}
+            className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg"
+          >
+            <h3 className="text-white text-2xl font-bold">{contest.title}</h3>
+            <p className="text-white/70">Date: {contest.date}</p>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
 
 export default function UserDashboard() {
   const router = useRouter();
@@ -35,28 +111,56 @@ export default function UserDashboard() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-4">
-        Welcome, {session.user.name || session.user.username}
-      </h1>
-      <button
-        onClick={handleLogout}
-        className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 border border-red-400/30"
-      >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-5 w-5" 
-          viewBox="0 0 20 20" 
-          fill="currentColor"
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="flex flex-col gap-5 items-center h-screen w-full px-6 py-10"
+    >
+      {/* Dashboard Header with Logout Button */}
+      <div className="flex items-center justify-between w-full max-w-5xl mb-8">
+        <div className="flex flex-col">
+          <div className="flex items-center">
+            <Logo />
+            <div>
+              <h1 className="text-white text-4xl font-bold">User Dashboard</h1>
+              <p className="text-red-400/90 text-lg ml-[0px]">
+                {session.user.name || session.user.username}
+              </p>
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 border border-red-400/30"
         >
-          <path 
-            fillRule="evenodd" 
-            d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4.414L11.414 5H15v2.414zM4 5h6.586L14 8.414V15H4V5z" 
-            clipRule="evenodd" 
-          />
-        </svg>
-        Logout
-      </button>
-    </div>
+          <FaSignOutAlt className="text-xl" />
+          Logout
+        </button>
+      </div>
+
+      {/* Dashboard Content */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+        <DashboardCard
+          Icon={FaClipboardList}
+          title="View Contests"
+          description="See available and ongoing SQL contests."
+          onClickHandler={() => {}}
+        />
+        <DashboardCard
+          Icon={FaPlusCircle}
+          title="Practice SQL"
+          description="Practice SQL queries and improve your skills."
+          onClickHandler={() => {}}
+        />
+        <DashboardCard
+          Icon={FaUsers}
+          title="Leaderboard"
+          description="Check your ranking and contest performance."
+          onClickHandler={() => {}}
+        />
+      </div>
+      <ContestTabs />
+    </motion.div>
   );
 }

@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 
 // Supabase client setup
 const supabase = createClient(
-  process.env.SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY // Use a service role key for admin privileges
 );
 
@@ -22,7 +22,7 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const { identifier, password } = credentials;
+        const { identifier, password, role } = credentials;
         console.log("identifier", identifier);
         console.log("password", password);
         // Find user by username
@@ -44,6 +44,10 @@ export const authOptions = {
           throw new Error("Invalid credentials");
         }
 
+        if (role && user.role !== role) {
+            throw new Error(`Unauthorized: Only ${role}s can log in here.`);
+          }
+
         // Return authenticated user data
         return {
           id: user.id,
@@ -55,6 +59,22 @@ export const authOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile, email, credentials, context }) {
+        const referer = context?.req?.headers?.referer || ""; // Get the login page URL
+    
+        // Prevent admin login from user login page
+        if (referer.includes("/user") && user.role === "admin") {
+          throw new Error("Unauthorized access: Admins cannot log in here.");
+        }
+    
+        // Prevent user login from admin login page
+        if (referer.includes("/admin") && user.role === "user") {
+          throw new Error("Unauthorized access: Users cannot log in here.");
+        }
+    
+        return true; // Allow valid logins
+    },
+
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

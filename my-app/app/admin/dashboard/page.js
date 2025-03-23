@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
-import { FaUsers, FaPlusCircle, FaClipboardList } from "react-icons/fa";
+import { FaUsers, FaPlusCircle, FaClipboardList, FaSignOutAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Logo from "@/app/Components/Logo";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
   return (
@@ -91,12 +91,24 @@ const AdminDashboard = () => {
     },
   });
 
+  const handleLogout = async () => {
+    try {
+      await signOut({ 
+        redirect: false,
+        callbackUrl: "/admin"
+      });
+      router.push('/admin');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   if (status === "loading") {
     return <div>Loading...</div>;
   }
 
   if (!session || session.user.role !== "admin") {
-    return redirect("/admin"); // useSession will handle the redirect
+    return redirect("/admin");
   }
 
   return (
@@ -106,10 +118,26 @@ const AdminDashboard = () => {
       transition={{ duration: 0.8, ease: "easeOut" }}
       className="flex flex-col gap-5 items-center h-screen w-full px-6 py-10"
     >
-      {/* Dashboard Header */}
-      <div className="flex items-center justify-center w-full max-w-5xl mb-8">
-        <Logo />
-        <h1 className="text-white text-4xl font-bold">Admin Dashboard</h1>
+      {/* Dashboard Header with Logout Button */}
+      <div className="flex items-center justify-between w-full max-w-5xl mb-8">
+        <div className="flex flex-col">
+          <div className="flex items-center">
+            <Logo />
+            <div>
+              <h1 className="text-white text-4xl font-bold">Admin Dashboard</h1>
+              <p className="text-red-400/90 text-lg ml-[0px]">
+                {session.user.name || session.user.username}
+              </p>
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 border border-red-400/30"
+        >
+          <FaSignOutAlt className="text-xl" />
+          Logout
+        </button>
       </div>
 
       {/* Dashboard Content */}
