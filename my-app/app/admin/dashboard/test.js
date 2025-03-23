@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { FaUser, FaLock, FaSignInAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Logo from "../Components/Logo";
@@ -8,7 +8,7 @@ import Logo from "../Components/Logo";
 const InputField = ({ Icon, type, placeholder }) => {
   return (
     <div className="w-full">
-      <div className="flex items-center bg-black/40 backdrop-blur-lg shadow-lg rounded-full py-3 px-5 hover:bg-black/50 transition-all border border-red-500/30">
+      <div className="flex items-center bg-black/40 backdrop-blur-lg shadow-lg rounded-full py-3 px-4 hover:bg-black/50 transition-all border border-red-500/30">
         <div className="bg-gradient-to-br from-red-500 to-red-800 rounded-full p-3 flex items-center justify-center shadow-md">
           <Icon className="text-white text-xl" />
         </div>
@@ -32,6 +32,7 @@ const ButtonField = ({ Icon, btnText }) => {
     </div>
   );
 };
+
 
 const AdminLogin = () => {
   return (
@@ -64,6 +65,9 @@ const AdminLogin = () => {
           Forgot password?
         </a>
       </motion.div>
+
+      {/* Contest Tabs Section */}
+      <ContestTabs />
 
       {/* Version indicator */}
       <div className="absolute bottom-4 right-4 text-white/40 text-sm">
