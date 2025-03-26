@@ -1,11 +1,12 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUsers, FaPlusCircle, FaClipboardList, FaSignOutAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Logo from "@/app/Components/Logo";
 import { motion } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
+import supabase from "@/supabaseClient";
 
 const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
   return (
@@ -22,22 +23,9 @@ const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
   );
 };
 
-const ContestTabs = () => {
+const ContestTabs = ({ contests }) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("upcoming");
-  const contests = {
-    upcoming: [
-      { id: 1, title: "Spring Coding Challenge", date: "April 15, 2025" },
-      { id: 2, title: "AI Hackathon", date: "May 10, 2025" },
-    ],
-    ongoing: [
-      { id: 5, title: "Data Structures Contest", date: "March 25, 2025" },
-      { id: 6, title: "Web Development Sprint", date: "March 30, 2025" },
-    ],
-    finished: [
-      { id: 3, title: "Winter Data Science Contest", date: "March 5, 2025" },
-      { id: 4, title: "Cybersecurity CTF", date: "February 20, 2025" },
-    ],
-  };
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-8">
@@ -53,9 +41,9 @@ const ContestTabs = () => {
             onClick={() => setActiveTab(tab)}
           >
             {tab === "upcoming"
-              ? "Ongoing Contests"
-              : tab === "ongoing"
               ? "Upcoming Contests"
+              : tab === "ongoing"
+              ? "Ongoing Contests"
               : "Finished Contests"}
           </button>
         ))}
@@ -70,10 +58,12 @@ const ContestTabs = () => {
         {contests[activeTab].map((contest) => (
           <div
             key={contest.id}
-            className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg"
+            onClick={() => router.push(`/user/dashboard/contest/${contest.id}`)}
+            className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg hover:bg-black/60 cursor-pointer"
           >
-            <h3 className="text-white text-2xl font-bold">{contest.title}</h3>
+            <h3 className="text-white text-2xl font-bold">{contest.name}</h3>
             <p className="text-white/70">Date: {contest.date}</p>
+            <p className="text-white/70">Starting On: {contest.startTime}</p>
           </div>
         ))}
       </motion.div>
@@ -89,6 +79,64 @@ export default function UserDashboard() {
       router.push('/user');
     },
   });
+
+  const [contests, setContests] = useState({
+    upcoming: [],
+    ongoing: [],
+    finished: []
+  }); 
+
+  // Sample contests data
+  // const contests = {
+  //   upcoming: [
+  //     { id: 1, title: "Spring Coding Challenge", date: "April 15, 2025" },
+  //     { id: 2, title: "AI Hackathon", date: "May 10, 2025" },
+  //   ],
+  //   ongoing: [
+  //     { id: 3, title: "Data Structures Contest", date: "March 25, 2025" },
+  //     { id: 4, title: "Web Development Sprint", date: "March 30, 2025" },
+  //   ],
+  //   finished: [
+  //     { id: 5, title: "Winter Data Science Contest", date: "March 5, 2025" },
+  //     { id: 6, title: "Cybersecurity CTF", date: "February 20, 2025" },
+  //   ],
+  // };
+
+  useEffect(() => {
+    const fetchContests = async () => {
+      const { data, error } = await supabase
+        .from('Contests')
+        .select('*')
+        .order('date', { ascending: true }); // Adjust ordering as needed
+
+        console.log(data)
+
+      if (error) {
+        console.error("Error fetching contests:", error);
+      } else {
+        // Organize contests into the desired structure
+        const organizedContests = {
+          upcoming: [],
+          ongoing: [],
+          finished: []
+        };
+
+        data.forEach(contest => {
+          if (contest.status === 'upcoming') {
+            organizedContests.upcoming.push(contest);
+          } else if (contest.status === 'ongoing') {
+            organizedContests.ongoing.push(contest);
+          } else if (contest.status === 'finished') {
+            organizedContests.finished.push(contest);
+          }
+        });
+
+        setContests(organizedContests);
+      }
+    };
+
+    fetchContests();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -160,7 +208,7 @@ export default function UserDashboard() {
           onClickHandler={() => {}}
         />
       </div>
-      <ContestTabs />
+      <ContestTabs contests={contests} />
     </motion.div>
   );
 }
