@@ -1,11 +1,19 @@
 "use client";
 import { useState } from "react";
-import { FaUsers, FaPlusCircle, FaClipboardList, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaUsers,
+  FaPlusCircle,
+  FaClipboardList,
+  FaSignOutAlt,
+} from "react-icons/fa";
+import { ImSpinner2 } from "react-icons/im";
 import { useRouter } from "next/navigation";
 import Logo from "@/app/Components/Logo";
 import { motion } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
+import LogoutButton from "@/app/Components/LogoutButton";
+
 const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
   return (
     <div
@@ -83,23 +91,26 @@ const ContestTabs = () => {
 };
 
 const AdminDashboard = () => {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
-      router.push('/admin');
+      router.push("/admin");
     },
   });
 
   const handleLogout = async () => {
     try {
-      await signOut({ 
+      setIsLoggingOut(true); // Show loader
+      await signOut({
         redirect: false,
-        callbackUrl: "/admin"
+        callbackUrl: "/admin",
       });
-      router.push('/admin');
+      setIsLoggingOut(false); // Hide loader (optional, if redirected)
+      router.push("/admin");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -131,13 +142,24 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
-        <button
+        {/* <button
           onClick={handleLogout}
-          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 border border-red-400/30"
+          disabled={isLoggingOut}
+          className={`bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 border border-red-400/30 ${
+            isLoggingOut ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          <FaSignOutAlt className="text-xl" />
-          Logout
-        </button>
+          {isLoggingOut ? (
+            <>
+              <ImSpinner2 className="text-xl animate-spin" /> Logging out...
+            </>
+          ) : (
+            <>
+              <FaSignOutAlt className="text-xl" /> Logout
+            </>
+          )}
+        </button> */}
+        <LogoutButton isLoading={isLoggingOut} onClick={handleLogout} />
       </div>
 
       {/* Dashboard Content */}

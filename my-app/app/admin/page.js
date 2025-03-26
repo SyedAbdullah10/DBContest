@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import { FaUser, FaLock, FaSignInAlt } from "react-icons/fa";
+import { ImSpinner2 } from "react-icons/im"; // Import loading spinner icon
 import { motion } from "framer-motion";
 import Logo from "../Components/Logo";
 import { signIn } from "next-auth/react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import LoginButton from "../Components/LoginButton";
 
 const InputField = ({ Icon, type, placeholder, value, onChange }) => {
   return (
@@ -27,64 +29,52 @@ const InputField = ({ Icon, type, placeholder, value, onChange }) => {
   );
 };
 
-const ButtonField = ({ Icon, btnText, type, onClick }) => {
-  return (
-    <div className="w-full">
-      <button className="flex items-center justify-center gap-3 w-full rounded-full py-3 px-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-xl font-bold shadow-lg hover:from-red-700 hover:to-red-800 transition-all border border-red-400/30"
-        type={type}
-        onClick={onClick}
-      >
-        <Icon className="text-xl" />
-        {btnText}
-      </button>
-    </div>
-  );
-};
-
 const AdminLogin = () => {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false); // Track login state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setIsLoggingIn(true); // Show loader
+
     try {
       const result = await signIn("credentials", {
         identifier,
         password,
         redirect: false,
-        role: 'admin' // Add this to route to admin login
+        role: "admin",
       });
-  
+
       if (result?.error) {
         setError(result.error);
+        setIsLoggingIn(false); // Hide loader if error
       } else {
-        // Check role before redirecting
         const session = await getSession();
-        if (session?.user?.role === 'admin') {
+        if (session?.user?.role === "admin") {
           router.push("/admin/dashboard");
         } else {
           setError("Unauthorized access");
+          setIsLoggingIn(false);
           router.push("/admin");
         }
       }
     } catch (error) {
       setError("An error occurred during login");
+      setIsLoggingIn(false); // Hide loader on failure
     }
   };
 
   return (
     <main className="flex flex-col justify-center items-center h-screen w-full">
-      {/* Login container with animation */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="flex flex-col items-center w-full max-w-2xl px-8 py-12 bg-black/40 backdrop-blur-xl shadow-2xl rounded-3xl border border-red-500/20 z-10"
       >
-        {/* Logo and Header side by side */}
         <div className="w-full flex items-center gap-4 mb-6">
           <Logo />
           <h1 className="text-white text-4xl font-bold tracking-wide">
@@ -93,13 +83,23 @@ const AdminLogin = () => {
         </div>
 
         <div className="w-full space-y-6">
-          <InputField Icon={FaUser} type="text" placeholder="Username" value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
-          <InputField Icon={FaLock} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <ButtonField Icon={FaSignInAlt} btnText="LOGIN" type="submit" onClick={handleSubmit} />
+          <InputField
+            Icon={FaUser}
+            type="text"
+            placeholder="Username"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+          />
+          <InputField
+            Icon={FaLock}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <LoginButton onClick={handleSubmit} isLoading={isLoggingIn} />
           {error && (
-                  <div className="text-red-500 text-sm mt-2 text-center">
-                    {error}
-                  </div>
+            <div className="text-red-500 text-sm mt-2 text-center">{error}</div>
           )}
         </div>
 
@@ -111,7 +111,6 @@ const AdminLogin = () => {
         </a>
       </motion.div>
 
-      {/* Version indicator */}
       <div className="absolute bottom-4 right-4 text-white/40 text-sm">
         Admin Portal v2.0
       </div>

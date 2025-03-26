@@ -1,11 +1,17 @@
-'use client';
+"use client";
 import { useState } from "react";
-import { FaUsers, FaPlusCircle, FaClipboardList, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaUsers,
+  FaPlusCircle,
+  FaClipboardList,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Logo from "@/app/Components/Logo";
 import { motion } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
+import LogoutButton from "@/app/Components/LogoutButton";
 
 const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
   return (
@@ -86,19 +92,22 @@ export default function UserDashboard() {
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
-      router.push('/user');
+      router.push("/user");
     },
   });
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await signOut({ 
+      setIsLoggingOut(true);
+      await signOut({
         redirect: false,
-        callbackUrl: "/user"
+        callbackUrl: "/user",
       });
-      router.push('/user');
+      setIsLoggingOut(false);
+      router.push("/user");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -130,13 +139,14 @@ export default function UserDashboard() {
             </div>
           </div>
         </div>
-        <button
+        {/* <button
           onClick={handleLogout}
           className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 border border-red-400/30"
         >
           <FaSignOutAlt className="text-xl" />
           Logout
-        </button>
+        </button> */}
+        <LogoutButton isLoading={isLoggingOut} onClick={handleLogout} />
       </div>
 
       {/* Dashboard Content */}

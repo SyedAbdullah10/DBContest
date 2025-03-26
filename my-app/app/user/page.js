@@ -7,7 +7,7 @@ import styles from "./styles.module.css";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
-
+import LoginButton from "../Components/LoginButton";
 
 // Add keyframes animation at the top of the file
 const pulseRotateAnimation = `
@@ -87,21 +87,6 @@ const InputField = ({ Icon, type, placeholder, value, onChange }) => {
   );
 };
 
-const ButtonField = ({ Icon, btnText, type, onClick }) => {
-  return (
-    <div className="w-full">
-      <button 
-        className="flex items-center justify-center gap-3 w-full rounded-full p-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-xl font-bold shadow-lg hover:from-red-700 hover:to-red-800 transition-all border border-red-400/30"
-        type={type}
-        onClick={onClick}
-      >
-        <Icon className="text-xl" />
-        {btnText}
-      </button>
-    </div>
-  );
-};
-
 const TypewriterText = ({ text, delay = 10, onComplete }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -141,6 +126,7 @@ const UserLogin = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const router = useRouter();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Use ref for processing state instead of useState for more reliable protection
   const isProcessingRef = useRef(false);
@@ -281,21 +267,23 @@ const UserLogin = () => {
   // Move handleSubmit inside the component
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
+      setIsLoggingIn(true);
       const result = await signIn("credentials", {
         identifier,
         password,
         redirect: false,
-        role: 'user' // Add this to route to user login
+        role: "user", // Add this to route to user login
       });
-  
+
+      setIsLoggingIn(false);
       if (result?.error) {
         setError(result.error);
       } else {
         // Check role before redirecting
         const session = await getSession();
-        if (session?.user?.role === 'user') {
+        if (session?.user?.role === "user") {
           router.push("/user/dashboard");
         } else {
           setError("Unauthorized access");
@@ -479,15 +467,14 @@ const UserLogin = () => {
                   USER LOGIN
                 </h1>
               </div>
-  
 
               <form onSubmit={handleSubmit} className="w-full space-y-6">
-                <InputField 
-                  Icon={FaUser} 
-                  type="text" 
-                  placeholder="Username" 
-                  value={identifier} 
-                  onChange={(e) => setIdentifier(e.target.value)} 
+                <InputField
+                  Icon={FaUser}
+                  type="text"
+                  placeholder="Username"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                 />
                 <InputField
                   Icon={FaLock}
@@ -496,11 +483,7 @@ const UserLogin = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <ButtonField 
-                  Icon={FaSignInAlt} 
-                  btnText="LOGIN" 
-                  type="submit"
-                />
+                <LoginButton onClick={handleSubmit} isLoading={isLoggingIn} />
                 {error && (
                   <div className="text-red-500 text-sm mt-2 text-center">
                     {error}
@@ -510,7 +493,7 @@ const UserLogin = () => {
 
               <a
                 href="#"
-                className="text-white/70 mt-8 text-lg hover:text-red-400 transition-colors block"
+                className="text-white/70 mt-8 text-lg text-center hover:text-red-400 transition-colors block"
               >
                 Forgot password?
               </a>
