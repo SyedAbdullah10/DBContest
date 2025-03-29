@@ -1,12 +1,6 @@
 "use client";
 import { useState } from "react";
-import {
-  FaUsers,
-  FaPlusCircle,
-  FaClipboardList,
-  FaSignOutAlt,
-} from "react-icons/fa";
-import { ImSpinner2 } from "react-icons/im";
+import { FaUsers, FaPlusCircle, FaClipboardList } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Logo from "@/app/Components/Logo";
 import { motion } from "framer-motion";
@@ -142,23 +136,6 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
-        {/* <button
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          className={`bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 border border-red-400/30 ${
-            isLoggingOut ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          {isLoggingOut ? (
-            <>
-              <ImSpinner2 className="text-xl animate-spin" /> Logging out...
-            </>
-          ) : (
-            <>
-              <FaSignOutAlt className="text-xl" /> Logout
-            </>
-          )}
-        </button> */}
         <LogoutButton isLoading={isLoggingOut} onClick={handleLogout} />
       </div>
 
@@ -169,14 +146,16 @@ const AdminDashboard = () => {
           title="Create Contest"
           description="Set up new database contests for users."
           onClickHandler={() => {
-            router.push("/admin/createContest");
+            router.push("/admin/dashboard/createContest");
           }}
         />
         <DashboardCard
           Icon={FaUsers}
           title="Manage Users"
           description="View, add, or remove users from the app."
-          onClickHandler={() => {}}
+          onClickHandler={() => {
+            router.push("/admin/dashboard/manageUsers");
+          }}
         />
         <DashboardCard
           Icon={FaPlusCircle}
