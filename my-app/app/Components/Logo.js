@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-const Logo = () => {
+const Logo = ({extraClasses = ""}) => {
   return (
     <motion.div
       animate={{ scale: [1, 1.1, 1] }}
@@ -13,7 +13,7 @@ const Logo = () => {
         alt="Logo"
         width={55}
         height={55}
-        className="mr-4 mix-blend-lighten rounded-full"
+        className={`mr-4 mix-blend-lighten rounded-full ${extraClasses}`}
       />
     </motion.div>
   );
