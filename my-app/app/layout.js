@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Inter, JetBrains_Mono, Poppins } from "next/font/google";
 import { Providers } from "./providers";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const inter = Inter({ subsets: ["latin"], weight: ["300", "400", "600"] });
 const jetBrainsMono = JetBrains_Mono({
@@ -31,6 +33,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${poppins.className} ${geistSans.variable} ${geistMono.variable} antialiased bg-black bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.3),rgba(0,0,0,0.9))]`}
       >
+        <ToastContainer />
         <Providers>{children}</Providers>
       </body>
     </html>

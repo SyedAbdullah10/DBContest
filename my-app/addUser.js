@@ -5,14 +5,19 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 // ✅ Ensure environment variables are loaded
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error("SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing!");
-} 
+if (
+  !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  !process.env.SUPABASE_SERVICE_ROLE_KEY
+) {
+  throw new Error(
+    "NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing!"
+  );
+}
 
 const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 async function addUserToSupabase(username, password, name, role) {
   const saltRounds = 10; // Recommended salt rounds for security
@@ -23,7 +28,7 @@ async function addUserToSupabase(username, password, name, role) {
       username: username,
       password: hashedPassword, // Store hashed password
       name: name,
-      role: role
+      role: role,
     },
   ]);
 
@@ -34,7 +39,12 @@ async function addUserToSupabase(username, password, name, role) {
 
   console.log("User added successfully:", data);
   return data;
-}   
+}
 
 // Example usage
-addUserToSupabase("abdullah2", "SecurePassword456", "Syed Abdullah Bin Tariq", "admin");
+addUserToSupabase(
+  "abdullah2",
+  "SecurePassword456",
+  "Syed Abdullah Bin Tariq",
+  "admin"
+);
