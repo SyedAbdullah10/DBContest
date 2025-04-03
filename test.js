@@ -63,6 +63,11 @@
 
 // console.log(new Date("Sat Mar 29 2025 15:17:52 GMT+0500 (Pakistan Standard Time)").toLocaleTimeString() - new Date("Sat Mar 29 2025 15:17:52 GMT+0500 (Pakistan Standard Time)").toLocaleTimeString())
 
+let arr1 = [{id: "232"}, {id: "3434"}];
+let arr2 = [{id: "232"}, {id: "3434"}];
 
+arr1.push(arr2);
+console.log(arr1);
+arr1 = arr1.flat();
+console.log(arr1);
 
-formulate_leaderboard();
