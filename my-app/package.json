@@ -35,8 +35,10 @@
     "framer-motion": "^12.5.0",
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.483.0",
+    "mysql2": "^3.14.0",
     "next": "^15.2.4",
     "next-auth": "^4.24.11",
+    "oracledb": "^6.8.0",
     "prism-react-renderer": "^2.4.1",
     "prism-themes": "^1.9.0",
     "react": "^19.0.0",
@@ -47,6 +49,7 @@
     "react-time-picker": "^7.0.0",
     "reactflow": "^11.11.4",
     "sql-ddl-to-json-schema": "^5.0.0",
+    "sqlite3": "^5.1.7",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7"
   },
