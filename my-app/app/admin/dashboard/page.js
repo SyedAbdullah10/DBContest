@@ -11,7 +11,8 @@ import Link from "next/link";
 
 const DashboardCard = ({ Icon, title, description, onClickHandler, goto }) => {
   return (
-    <Link href={goto}
+    <Link
+      href={goto}
       onClick={onClickHandler}
       className="bg-black/40 backdrop-blur-lg shadow-lg p-6 rounded-2xl border border-red-500/30 hover:bg-black/50 hover:cursor-pointer hover:scale-105 transition-all"
     >
@@ -24,80 +25,19 @@ const DashboardCard = ({ Icon, title, description, onClickHandler, goto }) => {
   );
 };
 
-// const ContestTabs = () => {
-//   const [activeTab, setActiveTab] = useState("upcoming");
-//   const contests = {
-//     upcoming: [
-//       { id: 1, title: "Spring Coding Challenge", date: "April 15, 2025" },
-//       { id: 2, title: "AI Hackathon", date: "May 10, 2025" },
-//     ],
-//     ongoing: [
-//       { id: 5, title: "Data Structures Contest", date: "March 25, 2025" },
-//       { id: 6, title: "Web Development Sprint", date: "March 30, 2025" },
-//     ],
-//     finished: [
-//       { id: 3, title: "Winter Data Science Contest", date: "March 5, 2025" },
-//       { id: 4, title: "Cybersecurity CTF", date: "February 20, 2025" },
-//     ],
-//   };
-
-//   return (
-//     <div className="w-full max-w-3xl mx-auto mt-8">
-//       {/* Tab Buttons */}
-//       <div className="flex mb-4 border-b border-red-500/50">
-//         {["upcoming", "ongoing", "finished"].map((tab) => (
-//           <button
-//             key={tab}
-//             className={`flex-1 text-lg font-semibold py-2 transition-all ${
-//               activeTab === tab
-//                 ? "border-b-4 border-red-500 text-red-500"
-//                 : "text-white hover:text-red-400"
-//             }`}
-//             onClick={() => setActiveTab(tab)}
-//           >
-//             {tab === "upcoming"
-//               ? "Ongoing Contests"
-//               : tab === "ongoing"
-//               ? "Upcoming Contests"
-//               : "Finished Contests"}
-//           </button>
-//         ))}
-//       </div>
-
-//       {/* Contest Cards */}
-//       <motion.div
-//         key={activeTab}
-//         initial={{ opacity: 0, y: 20 }}
-//         animate={{ opacity: 1, y: 0 }}
-//         transition={{ duration: 0.5 }}
-//       >
-//         {contests[activeTab].map((contest) => (
-//           <div
-//             key={contest.id}
-//             className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg"
-//           >
-//             <h3 className="text-white text-2xl font-bold">{contest.title}</h3>
-//             <p className="text-white/70">Date: {contest.date}</p>
-//           </div>
-//         ))}
-//       </motion.div>
-//     </div>
-//   );
-// };
-
 const contests = {
   upcoming: [
     {
       id: 1,
       name: "Spring Coding Challenge",
-      date: "March 29, 2025",
+      date: "April 11, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
     {
       id: 2,
       name: "AI Hackathon",
-      date: "March 29, 2025",
+      date: "April 11, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
@@ -106,14 +46,14 @@ const contests = {
     {
       id: 5,
       name: "Data Structures Contest",
-      date: "March 29, 2025",
+      date: "April 11, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
     {
       id: 6,
       name: "Web Development Sprint",
-      date: "March 29, 2025",
+      date: "April 11, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
@@ -122,14 +62,14 @@ const contests = {
     {
       id: 3,
       name: "Winter Data Science Contest",
-      date: "March 29, 2025",
+      date: "April 11, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
     {
       id: 4,
       name: "Cybersecurity CTF",
-      date: "March 29, 2025",
+      date: "April 11, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
@@ -141,11 +81,14 @@ const ContestTabs = ({ contests }) => {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filterContests = (contests) => {
-    return contests?.filter((contest) =>
-      contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
+  // const filterContests = (contests) => {
+  //   console.log(contests);
+
+  //   if (searchQuery == "") return;
+  //   return contests[activeTab]?.filter((contest) =>
+  //     contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  //   );
+  // };
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-8">
@@ -154,7 +97,10 @@ const ContestTabs = ({ contests }) => {
         type="text"
         placeholder="Search Contests..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          // contests[activeTab] = filterContests(contests);
+        }}
         className="w-full p-2 mb-4 text-white bg-black/50 border border-red-500/40 rounded-lg focus:outline-none focus:border-red-500"
       />
 
@@ -187,20 +133,23 @@ const ContestTabs = ({ contests }) => {
       >
         {activeTab === "upcoming" && (
           <UpcomingContests
-            contests={filterContests(contests?.upcoming)}
+            contests={contests?.upcoming}
             router={router}
+            searchQuery={searchQuery}
           />
         )}
         {activeTab === "ongoing" && (
           <OngoingContests
-            contests={filterContests(contests?.ongoing)}
+            contests={contests?.ongoing}
             router={router}
+            searchQuery={searchQuery}
           />
         )}
         {activeTab === "finished" && (
           <FinishedContests
-            contests={filterContests(contests?.finished)}
+            contests={contests?.finished}
             router={router}
+            searchQuery={searchQuery}
           />
         )}
       </motion.div>
@@ -208,99 +157,178 @@ const ContestTabs = ({ contests }) => {
   );
 };
 
-const formatTime = (time) => new Date(time).toLocaleString();
+// Improved function to parse date and time strings into a Date object
+const parseDateTime = (dateStr, timeStr) => {
+  // Parse the date string (format: "April 11, 2025")
+  const dateParts = new Date(dateStr);
 
-const calculateTimeLeft = (endTime) => {
-  const targetTimeUTC = new Date(endTime);
+  // Parse the time string (format: "3:00:00 PM")
+  const timeParts = timeStr.match(/(\d+):(\d+):(\d+)\s*([AP]M)/i);
 
-  // Convert UTC time to Pakistan Standard Time (UTC+5)
-  const targetTimePST = new Date(targetTimeUTC.getTime() + 5 * 60 * 60 * 1000);
-  console.log("Converted Time (PST):", targetTimePST);
+  if (!timeParts) return new Date(); // Return current date if parsing fails
 
-  const nowUTC = new Date();
-  const nowPST = new Date(nowUTC.getTime() + 5 * 60 * 60 * 1000); // Convert current time to PST
-  console.log("Current Time (PST):", nowPST);
+  let hours = parseInt(timeParts[1]);
+  const minutes = parseInt(timeParts[2]);
+  const seconds = parseInt(timeParts[3]);
+  const ampm = timeParts[4].toUpperCase();
 
-  const difference = targetTimePST - nowPST;
-  console.log("Time Left in MS:", difference);
+  // Convert 12-hour format to 24-hour format
+  if (ampm === "PM" && hours < 12) hours += 12;
+  if (ampm === "AM" && hours === 12) hours = 0;
+
+  // Set the time components on the date object
+  dateParts.setHours(hours, minutes, seconds, 0);
+
+  return dateParts;
+};
+
+// Format date for display in the required format: "date, time"
+const formatTime = (dateObj) => {
+  if (!(dateObj instanceof Date) || isNaN(dateObj)) return "Invalid Date";
+
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+
+  return dateObj.toLocaleDateString("en-US", options);
+};
+
+// Calculate time remaining between now and a target date
+const calculateTimeLeft = (targetDate) => {
+  if (!(targetDate instanceof Date) || isNaN(targetDate)) return "00:00:00";
+
+  const now = new Date();
+  const difference = targetDate - now;
 
   if (difference <= 0) return "00:00:00";
 
-  const hours = String(Math.floor(difference / 3600000)).padStart(2, "0");
-  const minutes = String(Math.floor((difference % 3600000) / 60000)).padStart(
-    2,
-    "0"
-  );
-  const seconds = String(Math.floor((difference % 60000) / 1000)).padStart(
-    2,
-    "0"
-  );
+  const hours = Math.floor(difference / 3600000);
+  const minutes = Math.floor((difference % 3600000) / 60000);
+  const seconds = Math.floor((difference % 60000) / 1000);
 
-  return `${hours}:${minutes}:${seconds}`;
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 };
 
-const UpcomingContests = ({ contests, router }) =>
-  contests?.map((contest) => {
-    const [timeLeft, setTimeLeft] = useState(
-      calculateTimeLeft(contest.startTime)
-    );
-    useEffect(() => {
-      const timer = setInterval(
-        () => setTimeLeft(calculateTimeLeft(contest.startTime)),
-        1000
-      );
-      return () => clearInterval(timer);
-    }, []);
+// Custom hook for timer to prevent re-rendering the entire list
+const useTimer = (targetDate) => {
+  const [timeLeft, setTimeLeft] = useState("00:00:00");
 
-    return (
-      <div
-        key={contest.id}
-        onClick={() => router.push(`/user/dashboard/contest/${contest.id}`)}
-        className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg hover:bg-black/60 cursor-pointer"
-      >
-        <h3 className="text-white text-2xl font-bold">{contest.name}</h3>
-        <p className="text-white/70">Starts In: {timeLeft}</p>
-      </div>
-    );
-  });
+  useEffect(() => {
+    // Initialize time immediately
+    setTimeLeft(calculateTimeLeft(targetDate));
 
-const OngoingContests = ({ contests, router }) =>
-  contests?.map((contest) => {
-    const [timeLeft, setTimeLeft] = useState(
-      calculateTimeLeft(contest.endTime)
-    );
-    useEffect(() => {
-      const timer = setInterval(
-        () => setTimeLeft(calculateTimeLeft(contest.endTime)),
-        1000
-      );
-      return () => clearInterval(timer);
-    }, []);
+    // Set up interval
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(targetDate));
+    }, 1000);
 
-    return (
-      <div
-        key={contest.id}
-        onClick={() => router.push(`/user/dashboard/contest/${contest.id}`)}
-        className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg hover:bg-black/60 cursor-pointer"
-      >
-        <h3 className="text-white text-2xl font-bold">{contest.name}</h3>
-        <p className="text-white/70">Ends In: {timeLeft}</p>
-      </div>
-    );
-  });
+    // Clean up interval
+    return () => clearInterval(timer);
+  }, [targetDate]); // Only re-run if targetDate changes
 
-const FinishedContests = ({ contests, router }) =>
-  contests?.map((contest) => (
+  return timeLeft;
+};
+
+// Contest Card Component to isolate re-renders
+const ContestCard = ({ contest, type, router }) => {
+  // Parse dates based on contest type
+  const startDateTime = parseDateTime(contest.date, contest.startTime);
+  const endDateTime = parseDateTime(contest.date, contest.endTime);
+
+  // Use timer hook based on contest type
+  const timeLeft = useTimer(type === "upcoming" ? startDateTime : endDateTime);
+
+  return (
     <div
       key={contest.id}
       onClick={() => router.push(`/user/dashboard/contest/${contest.id}`)}
       className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg hover:bg-black/60 cursor-pointer"
     >
       <h3 className="text-white text-2xl font-bold">{contest.name}</h3>
-      <p className="text-white/70">Start: {formatTime(contest.startTime)}</p>
-      <p className="text-white/70">End: {formatTime(contest.endTime)}</p>
+
+      {type === "upcoming" && (
+        <>
+          <p className="text-white/70">Starts In: {timeLeft}</p>
+          <p className="text-white/70">
+            Start Time: {formatTime(startDateTime)}
+          </p>
+        </>
+      )}
+
+      {type === "ongoing" && (
+        <>
+          <p className="text-white/70">Ends In: {timeLeft}</p>
+          <p className="text-white/70">End Time: {formatTime(endDateTime)}</p>
+        </>
+      )}
+
+      {type === "finished" && (
+        <>
+          <p className="text-white/70">Started: {formatTime(startDateTime)}</p>
+          <p className="text-white/70">Ended: {formatTime(endDateTime)}</p>
+        </>
+      )}
     </div>
-  ));
+  );
+};
+
+// Simplified components that use ContestCard
+const UpcomingContests = ({ contests, router, searchQuery }) => (
+  <>
+    {contests
+      ?.filter((contest) =>
+        contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((contest) => (
+        <ContestCard
+          key={contest.id}
+          contest={contest}
+          type="upcoming"
+          router={router}
+        />
+      ))}
+  </>
+);
+
+const OngoingContests = ({ contests, router, searchQuery }) => (
+  <>
+    {contests
+      ?.filter((contest) =>
+        contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((contest) => (
+        <ContestCard
+          key={contest.id}
+          contest={contest}
+          type="ongoing"
+          router={router}
+        />
+      ))}
+  </>
+);
+
+const FinishedContests = ({ contests, router, searchQuery }) => (
+  <>
+    {contests
+      ?.filter((contest) =>
+        contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((contest) => (
+        <ContestCard
+          key={contest.id}
+          contest={contest}
+          type="finished"
+          router={router}
+        />
+      ))}
+  </>
+);
 
 const AdminDashboard = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
