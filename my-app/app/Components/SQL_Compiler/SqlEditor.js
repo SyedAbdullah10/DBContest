@@ -64,7 +64,13 @@ import {
 import { createTheme } from "@uiw/codemirror-themes";
 import { tags as t } from "@lezer/highlight";
 
-const SqlEditor = ({ query, setQuery, setSqlMode, sqlMode = "mysql" }) => {
+const SqlEditor = ({
+  query,
+  setQuery,
+  setSqlMode,
+  sqlMode = "mysql",
+  showOptions = true,
+}) => {
   // Custom reddish theme
   const redTheme = createTheme({
     theme: "dark",
@@ -94,18 +100,19 @@ const SqlEditor = ({ query, setQuery, setSqlMode, sqlMode = "mysql" }) => {
   };
 
   return (
-    <div className="space-y-3 w-max">
-      <Select onValueChange={setSqlMode}>
-        <SelectTrigger className="w-56 mb-3 bg-black/40 backdrop-blur-lg text-white border focus:border-red-500/50 border-red-500/20">
-          <SelectValue placeholder="Select Database" />
-        </SelectTrigger>
-        <SelectContent className="bg-black/40 backdrop-blur-lg text-white border border-red-500/20">
-          <SelectItem value="oracle">Oracle SQL</SelectItem>
-          <SelectItem value="mysql">MySQL</SelectItem>
-          <SelectItem value="postgresql">PostgreSQL</SelectItem>
-        </SelectContent>
-      </Select>
-
+    <div className="">
+      {showOptions && (
+        <Select onValueChange={setSqlMode}>
+          <SelectTrigger className="w-56 mb-3 bg-black/40 backdrop-blur-lg text-white border focus:border-red-500/50 border-red-500/20">
+            <SelectValue placeholder="Select Database" />
+          </SelectTrigger>
+          <SelectContent className="bg-black/40 backdrop-blur-lg text-white border border-red-500/20">
+            <SelectItem value="oracle">Oracle SQL</SelectItem>
+            <SelectItem value="mysql">MySQL</SelectItem>
+            <SelectItem value="postgresql">PostgreSQL</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
       <CodeMirror
         value={query}
         height="300px"
@@ -113,7 +120,7 @@ const SqlEditor = ({ query, setQuery, setSqlMode, sqlMode = "mysql" }) => {
         theme={redTheme}
         extensions={[sqlModes[sqlMode]]}
         onChange={(val) => setQuery(val)}
-        className="w-max"
+        className="w-full rounded-xl"
       />
     </div>
   );

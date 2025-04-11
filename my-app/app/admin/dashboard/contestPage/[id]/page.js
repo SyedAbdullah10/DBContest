@@ -8,6 +8,8 @@ import QuestionsTab from "./Components/QuestionsTab";
 import DDLTab from "./Components/DDLTab";
 import VisualSchemaTab from "./Components/VisualSchemaTab";
 import Leaderboard from "./Components/Leaderboard";
+import { useParams } from "next/navigation";
+import axios from "axios";
 
 const ContestPage = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -16,6 +18,12 @@ const ContestPage = () => {
     seconds: 0,
   });
   const [currentQuestion, setCurrentQuestion] = useState(1);
+  const [contestInfo, setContestInfo] = useState({});
+  const params = useParams(); // returns an object of dynamic params
+  const [contestId, setContesId] = useState(params.id);
+  const [ongoing, setOngoing] = useState(false);
+
+  // console.log(params);
 
   // Mock questions for the contest
   const [questions, setQuestions] = useState([
@@ -25,6 +33,7 @@ const ContestPage = () => {
       description:
         "Write a SQL query to retrieve all users who made at least one purchase in the last 30 days. Include their user ID, name, email, and total purchase amount.",
       difficulty: "Easy",
+      asnwer: "C1 | C2 | C3",
       points: 10,
     },
     {
@@ -44,6 +53,47 @@ const ContestPage = () => {
       points: 30,
     },
   ]);
+
+  useEffect(() => {
+    const fetchContestData = async () => {
+      try {
+        const response = await axios.get(`/api/contest-info/${contestId}`);
+        console.log(response);
+
+        const data = response.data;
+        setContestInfo(data.contest);
+        setQuestions(data.questions);
+        console.log(contestInfo);
+        console.log(questions);
+
+        const parseDateTime = (datetimeStr) => {
+          // Split "Month Date, Year | HH:MM:SS AM/PM"
+          const [datePart, timePart] = datetimeStr.split(" | ");
+          // Combine and parse
+          return new Date(`${datePart} ${timePart}`);
+        };
+
+        const start = parseDateTime(data.contest.startTime);
+        const end = parseDateTime(data.contest.endTime);
+        const now = new Date();
+
+        if (now >= start && now <= end) {
+          setOngoing(true);
+        }
+
+        const diffInSeconds = Math.floor((end - start) / 1000);
+        const hours = Math.floor(diffInSeconds / 3600);
+        const minutes = Math.floor((diffInSeconds % 3600) / 60);
+        const seconds = diffInSeconds % 60;
+
+        setTimeLeft({ hours, minutes, seconds });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchContestData();
+  }, []);
 
   // Mock schema
   const [schema, setSchema] = useState([
@@ -138,7 +188,8 @@ const ContestPage = () => {
               <Logo extraClasses="h-12 w-12" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">SQL Masters Challenge</h1>
+              {/* <h1 className="text-2xl font-bold">SQL Masters Challenge</h1> */}
+              <h1 className="text-2xl font-bold">{contestInfo.name}</h1>
               <p className="text-red-300">Database Contest - Advanced Level</p>
             </div>
           </div>
@@ -151,7 +202,15 @@ const ContestPage = () => {
                 {formatTime(timeLeft.seconds)}
               </span>
             </div>
-            <div className="text-sm text-red-300">Time remaining</div>
+            <div className="text-sm text-red-300">
+              {ongoing
+                ? "Time Remaining"
+                : timeLeft.hours == 0 &&
+                  timeLeft.seconds == 0 &&
+                  timeLeft.minutes == 0
+                ? "Ended"
+                : "Starts In"}
+            </div>
           </div>
         </div>
       </header>
@@ -199,7 +258,13 @@ const ContestPage = () => {
 
           <Leaderboard />
 
-          <DDLTab />
+          <DDLTab
+            ddl={{
+              oracle: contestInfo.oracle_ddl,
+              mysql: contestInfo.mysql_ddl,
+              postgresql: contestInfo.postgresql_ddl,
+            }}
+          />
 
           <VisualSchemaTab schema={schema} />
         </Tabs>

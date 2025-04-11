@@ -23,93 +23,31 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import axios from "axios";
 
 hljs.registerLanguage("sql", sql);
 
-const DDLTab = () => {
-  const [ddl, setDdl] = useState({
-    code: `CREATE TABLE users (
-  user_id INT PRIMARY KEY,
-  username VARCHAR(50) NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  last_login TIMESTAMP
-);
-
-CREATE TABLE products (
-  product_id INT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  description TEXT,
-  category VARCHAR(50),
-  price DECIMAL(10, 2) NOT NULL,
-  inventory INT NOT NULL DEFAULT 0
-);
-
-CREATE TABLE orders (
-  order_id INT PRIMARY KEY,
-  user_id INT NOT NULL,
-  total_amount DECIMAL(10, 2) NOT NULL,
-  status VARCHAR(20) DEFAULT 'pending',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
-
-CREATE TABLE order_items (
-  id INT PRIMARY KEY,
-  order_id INT NOT NULL,
-  product_id INT NOT NULL,
-  quantity INT NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  FOREIGN KEY (order_id) REFERENCES orders(order_id),
-  FOREIGN KEY (product_id) REFERENCES products(product_id)
-);`,
-    type: "postgresql",
-  });
-
+const DDLTab = ({ ddl = { mysql: "", oracle: "", postgresql: "" } }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedDdl, setEditedDdl] = useState("");
   const [copied, setCopied] = useState(false);
   const [highlightedCode, setHighlightedCode] = useState("");
   const [sqlMode, setSqlMode] = useState("postgresql");
 
-  useEffect(() => {
-    if (sqlMode != ddl.type) {
-      const convertDDL = async () => {
-        try {
-          // const response = await axios.post("/api/convert-ddl", {
-          //   ddl: ddl.code,
-          //   sourceDb: ddl.type,
-          //   targetDb: sqlMode,
-          // });
-          const response = await axios.post("https://api.sqlify.io/convert", {
-            ddl,
-            from: ddl.type,
-            to: sqlMode,
-          });
-          setDdl({
-            // code: response.data.convertedDDL,
-            code: response.data,
-            type: sqlMode,
-          });
-        } catch (err) {
-          console.log("Error occured: ", err);
-        }
-      };
-
-      convertDDL();
-    }
-  }, [sqlMode]);
-
   // Generate highlighted HTML whenever ddl changes
   useEffect(() => {
-    console.log(ddl);
-    const highlighted = hljs.highlight(ddl.code, { language: "sql" }).value;
+    if (!ddl || !ddl[sqlMode]) {
+      setHighlightedCode("// No DDL available for selected SQL type.");
+      return;
+    }
+
+    const highlighted = hljs.highlight(ddl[sqlMode], {
+      language: "sql",
+    }).value;
     setHighlightedCode(highlighted);
-  }, [ddl]);
+  }, [ddl, sqlMode]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(ddl.code).then(() => {
+    navigator.clipboard.writeText(ddl.mysql).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     });
@@ -124,6 +62,8 @@ CREATE TABLE order_items (
     setDdl(editedDdl);
     setIsEditDialogOpen(false);
   };
+
+  // console.log(ddl);
 
   return (
     <TabsContent value="ddl">

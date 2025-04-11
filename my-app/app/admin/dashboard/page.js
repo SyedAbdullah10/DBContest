@@ -8,6 +8,17 @@ import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 import LogoutButton from "@/app/Components/LogoutButton";
 import Link from "next/link";
+import axios from "axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const DashboardCard = ({ Icon, title, description, onClickHandler, goto }) => {
   return (
@@ -30,14 +41,16 @@ const contests = {
     {
       id: 1,
       name: "Spring Coding Challenge",
-      date: "April 11, 2025",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
     {
       id: 2,
       name: "AI Hackathon",
-      date: "April 11, 2025",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
@@ -46,14 +59,16 @@ const contests = {
     {
       id: 5,
       name: "Data Structures Contest",
-      date: "April 11, 2025",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
     {
       id: 6,
       name: "Web Development Sprint",
-      date: "April 11, 2025",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
@@ -62,21 +77,23 @@ const contests = {
     {
       id: 3,
       name: "Winter Data Science Contest",
-      date: "April 11, 2025",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
     {
       id: 4,
       name: "Cybersecurity CTF",
-      date: "April 11, 2025",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
       startTime: "3:00:00 PM",
       endTime: "4:00:00 PM",
     },
   ],
 };
 
-const ContestTabs = ({ contests }) => {
+const ContestTabs = ({ contests, handleContestCardClick }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("upcoming");
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,6 +153,7 @@ const ContestTabs = ({ contests }) => {
             contests={contests?.upcoming}
             router={router}
             searchQuery={searchQuery}
+            handleContestCardClick={handleContestCardClick}
           />
         )}
         {activeTab === "ongoing" && (
@@ -143,6 +161,7 @@ const ContestTabs = ({ contests }) => {
             contests={contests?.ongoing}
             router={router}
             searchQuery={searchQuery}
+            handleContestCardClick={handleContestCardClick}
           />
         )}
         {activeTab === "finished" && (
@@ -150,6 +169,7 @@ const ContestTabs = ({ contests }) => {
             contests={contests?.finished}
             router={router}
             searchQuery={searchQuery}
+            handleContestCardClick={handleContestCardClick}
           />
         )}
       </motion.div>
@@ -236,10 +256,10 @@ const useTimer = (targetDate) => {
 };
 
 // Contest Card Component to isolate re-renders
-const ContestCard = ({ contest, type, router }) => {
+const ContestCard = ({ contest, type, router, handleContestCardClick }) => {
   // Parse dates based on contest type
-  const startDateTime = parseDateTime(contest.date, contest.startTime);
-  const endDateTime = parseDateTime(contest.date, contest.endTime);
+  const startDateTime = parseDateTime(contest.startDate, contest.startTime);
+  const endDateTime = parseDateTime(contest.endDate, contest.endTime);
 
   // Use timer hook based on contest type
   const timeLeft = useTimer(type === "upcoming" ? startDateTime : endDateTime);
@@ -247,7 +267,7 @@ const ContestCard = ({ contest, type, router }) => {
   return (
     <div
       key={contest.id}
-      onClick={() => router.push(`/user/dashboard/contest/${contest.id}`)}
+      onClick={() => handleContestCardClick(contest)}
       className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg hover:bg-black/60 cursor-pointer"
     >
       <h3 className="text-white text-2xl font-bold">{contest.name}</h3>
@@ -279,7 +299,12 @@ const ContestCard = ({ contest, type, router }) => {
 };
 
 // Simplified components that use ContestCard
-const UpcomingContests = ({ contests, router, searchQuery }) => (
+const UpcomingContests = ({
+  contests,
+  router,
+  searchQuery,
+  handleContestCardClick,
+}) => (
   <>
     {contests
       ?.filter((contest) =>
@@ -291,12 +316,18 @@ const UpcomingContests = ({ contests, router, searchQuery }) => (
           contest={contest}
           type="upcoming"
           router={router}
+          handleContestCardClick={handleContestCardClick}
         />
       ))}
   </>
 );
 
-const OngoingContests = ({ contests, router, searchQuery }) => (
+const OngoingContests = ({
+  contests,
+  router,
+  searchQuery,
+  handleContestCardClick,
+}) => (
   <>
     {contests
       ?.filter((contest) =>
@@ -308,12 +339,18 @@ const OngoingContests = ({ contests, router, searchQuery }) => (
           contest={contest}
           type="ongoing"
           router={router}
+          handleContestCardClick={handleContestCardClick}
         />
       ))}
   </>
 );
 
-const FinishedContests = ({ contests, router, searchQuery }) => (
+const FinishedContests = ({
+  contests,
+  router,
+  searchQuery,
+  handleContestCardClick,
+}) => (
   <>
     {contests
       ?.filter((contest) =>
@@ -325,6 +362,7 @@ const FinishedContests = ({ contests, router, searchQuery }) => (
           contest={contest}
           type="finished"
           router={router}
+          handleContestCardClick={handleContestCardClick}
         />
       ))}
   </>
@@ -339,6 +377,28 @@ const AdminDashboard = () => {
       router.push("/admin");
     },
   });
+  const [contests, setContests] = useState({
+    ongoing: [],
+    upcoming: [],
+    finished: [],
+  });
+  const [isContestPassDialogOpen, setIsContestPassDialogOpen] = useState(false);
+  const [contestPass, setContestPass] = useState("");
+  const [selectedContest, setSelectedContest] = useState({});
+  const [wrongPassError, setWrongPassError] = useState(false);
+
+  useEffect(() => {
+    const fetchContests = async () => {
+      try {
+        const response = await axios.get("/api/dashboard-contests");
+        setContests(response.data);
+      } catch (error) {
+        console.error("Failed to fetch contests:", error);
+      }
+    };
+
+    fetchContests();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -352,6 +412,21 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Logout error:", error);
     }
+  };
+
+  const handleContestCardClick = (contest) => {
+    setIsContestPassDialogOpen(true);
+    setContestPass("");
+    setSelectedContest(contest);
+  };
+
+  const handleContestPassEnter = () => {
+    if (
+      selectedContest.password == "" ||
+      selectedContest.password == contestPass
+    )
+      router.push(`/admin/dashboard/contestPage/${selectedContest.id}`);
+    else setWrongPassError(true);
   };
 
   if (status === "loading") {
@@ -413,7 +488,50 @@ const AdminDashboard = () => {
           goto={"/admin/dashboard/createContest"}
         />
       </div>
-      <ContestTabs contests={contests} />
+      <ContestTabs
+        contests={contests}
+        handleContestCardClick={handleContestCardClick}
+      />
+      <Dialog open={isContestPassDialogOpen}>
+        <DialogContent className="bg-black/40 backdrop-blur-lg border border-red-500/30 shadow-xl rounded-lg">
+          <DialogHeader>
+            <DialogTitle className="text-white text-center text-2xl">
+              Enter Password
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-white">
+            <div className="flex flex-col gap-1">
+              <label className="text-md text-red-400">{"Password"}</label>
+              <Input
+                type={"password"}
+                value={contestPass}
+                onChange={(e) => setContestPass(e.target.value)}
+                placeholder={"Enter Contest Password"}
+                className="bg-black/50 border border-red-500/40 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500"
+              />
+              {wrongPassError && (
+                <span className="text-sm text-red-600">Incorrect password</span>
+              )}
+            </div>
+          </div>
+          <DialogFooter className="flex justify-end space-x-3 mt-4">
+            <Button
+              variant="outline"
+              className="border border-white text-black px-4 py-2 rounded-lg transition hover:bg-gray-300 hover:border-transparent"
+              onClick={() => setIsContestPassDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              className="bg-red-500 text-white px-4 py-2 rounded-lg transition hover:bg-red-700"
+              onClick={handleContestPassEnter}
+            >
+              Enter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
