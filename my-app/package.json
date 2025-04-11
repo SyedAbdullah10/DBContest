@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/app-configuration": "^1.9.0",
+    "@azure/identity": "^4.8.0",
+    "@azure/keyvault-secrets": "^4.9.0",
     "@codemirror/lang-sql": "^6.8.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -38,6 +41,8 @@
     "mysql2": "^3.14.0",
     "next": "^15.2.4",
     "next-auth": "^4.24.11",
+    "oci-common": "^2.107.0",
+    "oci-objectstorage": "^2.107.0",
     "oracledb": "^6.8.0",
     "prism-react-renderer": "^2.4.1",
     "prism-themes": "^1.9.0",

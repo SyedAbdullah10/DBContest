@@ -115,8 +115,10 @@ export async function POST(req) {
         connection.release(); // Always release the connection
       }
     } else if (dbType == "oracle") {
+      let connection;
       try {
-        connection = await oracle_pool.getConnection();
+        const o_pool = await oracle_pool();
+        connection = await o_pool.getConnection();
         console.log("✅ Connected to Oracle");
     
         if (ddl) {
