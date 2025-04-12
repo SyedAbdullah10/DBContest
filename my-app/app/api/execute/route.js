@@ -125,8 +125,14 @@ export async function POST(req) {
           await connection.execute(query);
           result = "DDL Executed Successfully";
         } else {
-          const resultSet = await connection.execute(query, [], { outFormat: oracledb.OUT_FORMAT_OBJECT });
-          result = resultSet.rows; // returns array of row objects
+          const isInsertOrUpdateOrDelete = /^(insert|update|delete)/i.test(query.trim());
+          const resultSet = await connection.execute(query, []); // <-- 🔥 FIX HERE
+          if (isInsertOrUpdateOrDelete) {
+            await connection.commit(); // 🔒 Persist the data
+            result = "Query Executed and Changes Committed";
+          } else {
+              result = resultSet.rows; // SELECT returns rows
+          }
         }
       } catch (error) {
         console.error("❌ Oracle query error:", error);
