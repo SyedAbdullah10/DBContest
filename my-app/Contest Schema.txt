@@ -1,40 +1,43 @@
 TABLES:
-	1) Admins
-		-) ID
-		-) Username
-		-) Password
-
-	2) Users
+	1) Users
 		-) id
 		-) username
+		-) name
 		-) password
+		-) role
 
 	3) Contests
 		-) id
 		-) name
-		-) Date
-		-) Start Time
-		-) End Time
-		-) Participants[]
+		-) startTime (Format: Month Date, Year | HH:MM:SS AM or PM)
+		-) endTime (Format: Month Date, Year | HH:MM:SS AM or PM)
+		-) password
+		-) mysql_ddl
+		-) oracle_ddl
+		-) postgresql_ddl
 
-	4) contest_number_[table_name]
+
+	4) Questions
+		-) id
+		-) questionNumber
+		-) questionTitle
+		-) questionDescription
+		-) ContestId -> references id in Contests Table
+		-) Answer
+		-) points
+		-) difficulty
+
+	5) Submissions
+		-) submission_id
+		-) question_id -> references id in Questions Table
+		-) contest_id -> references id in Contests Table
+		-) user_id -> references id in Users Table
+		-) user_answer (User submitted Query)
+		-) status (Wrong Answer or Accepted)
+		-) submitted_at (Format: Month Date, Year | HH:MM:SS AM or PM)
+		-) sql_mode
+ 	
+	6) contest_number_[table_name]
 		-) id
 		-) DDL
 		-) Contest_id(foreign key)
-
-	5) Questions
-		-) Qid
-		-) Question_Text
-		-) Contest_ID
-		-) Answer
-
-	6) Submissions
-		-) SubmissioniD
-		-) QuestionID
-		-) ContestID
-		-) userID
-		-) userAnswer
-		-) Status
-		-) SubmittedAt
- 
-	

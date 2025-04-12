@@ -59,6 +59,7 @@ export async function POST(request) {
     if (questions && questions.length > 0 && contestData.id) {
       // Map questions array to match your Questions table schema
       const questionsWithContestId = questions.map((q) => ({
+        questionNumber: q.number,
         questionTitle: q.title,
         questionDescription: q.description,
         difficulty: q.difficulty,

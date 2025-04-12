@@ -23,10 +23,19 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import {
+  showEditedToast,
+  showErrorToast,
+} from "@/app/Components/Dumped/utils/toast";
+import axios from "axios";
 
 hljs.registerLanguage("sql", sql);
 
-const DDLTab = ({ ddl = { mysql: "", oracle: "", postgresql: "" } }) => {
+const DDLTab = ({
+  ddl = { mysql: "", oracle: "", postgresql: "" },
+  setDdl,
+  contestId,
+}) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedDdl, setEditedDdl] = useState("");
   const [copied, setCopied] = useState(false);
@@ -54,13 +63,31 @@ const DDLTab = ({ ddl = { mysql: "", oracle: "", postgresql: "" } }) => {
   };
 
   const handleEditClick = () => {
-    setEditedDdl(ddl.code);
+    setEditedDdl(ddl[sqlMode]);
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveEdit = () => {
-    setDdl(editedDdl);
-    setIsEditDialogOpen(false);
+  const handleSaveEdit = async () => {
+    try {
+      const ddlKey = sqlMode + "_ddl"; // e.g., mysql_ddl
+
+      const res = await axios.put(`/api/contest-info/${contestId}/ddl`, {
+        ddlType: ddlKey,
+        ddl: editedDdl,
+      });
+
+      // Update only the specific DDL key in state
+      setDdl((prev) => ({
+        ...prev,
+        [ddlKey]: editedDdl,
+      }));
+
+      setIsEditDialogOpen(false);
+      showEditedToast();
+    } catch (error) {
+      console.error("Error updating DDL:", error);
+      showErrorToast();
+    }
   };
 
   // console.log(ddl);

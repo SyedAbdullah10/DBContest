@@ -581,6 +581,10 @@ const CreateContest = () => {
         return `${month} ${day}, ${year} | ${time}`;
       };
 
+      for (let i = 0; i < questions.length; i++) {
+        questions[i]["number"] = "Q" + (i + 1).toString();
+      }
+
       const contestData = {
         contestName,
         startTime: formatDateTime(startTime),

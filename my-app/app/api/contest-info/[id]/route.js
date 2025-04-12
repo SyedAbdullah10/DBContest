@@ -5,7 +5,6 @@ export async function GET(req) {
   const url = new URL(req.url);
   const contestId = url.pathname.split("/").pop(); // gets the last part of the URL
   console.log(contestId);
-  
 
   // Fetch contest info
   const { data: contest, error: contestError } = await supabase
@@ -26,7 +25,8 @@ export async function GET(req) {
     .select(
       "id, questionTitle, questionDescription, difficulty, Answer, points"
     )
-    .eq("ContestId", contestId);
+    .eq("ContestId", contestId)
+    .order("questionNumber");
 
   if (questionsError) {
     return NextResponse.json(

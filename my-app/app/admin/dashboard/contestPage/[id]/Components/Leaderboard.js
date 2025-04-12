@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Table,
   TableBody,
@@ -7,370 +8,153 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { User } from "lucide-react";
+import {
+  User,
+  CheckCircle,
+  XCircle,
+  UserCircle,
+  CheckSquare,
+} from "lucide-react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
 
-const Leaderboard = () => {
-  const contestants = [
-    {
-      rank: 1,
-      username: "akhyarahmed",
-      score: 4,
-      penalty: 154,
-      problems: {
-        A: { time: "0:04:44", status: "solved" },
-        B: { time: "0:13:14", status: "solved-highlight" },
-        C: { time: "1:03:46", status: "solved" },
-        D: { time: "1:13:01", status: "solved-highlight" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 2,
-      username: "Muhammad_Sameed",
-      score: 3,
-      penalty: 69,
-      problems: {
-        A: { time: "0:09:15", status: "solved" },
-        B: { time: "0:26:10", status: "solved" },
-        C: { time: "0:34:06", status: "solved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 3,
-      username: "Umar26",
-      score: 3,
-      penalty: 105,
-      problems: {
-        A: { time: "0:02:54", status: "solved" },
-        B: { time: "1:14:25", status: "solved" },
-        C: { time: "0:28:12", status: "solved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 4,
-      username: "Huzaifa_Bari",
-      score: 3,
-      penalty: 119,
-      problems: {
-        A: { time: "0:01:36", status: "solved-highlight" },
-        B: { time: "0:54:53 (-1)", status: "solved-penalty" },
-        C: { time: "0:43:25", status: "solved" },
-        D: { time: "(-4)", status: "failed" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 5,
-      username: "Ali_Hadi787",
-      score: 2,
-      penalty: 28,
-      problems: {
-        A: { time: "0:09:36", status: "solved" },
-        B: { time: "", status: "unsolved" },
-        C: { time: "0:19:04", status: "solved-highlight" },
-        D: { time: "(-1)", status: "failed" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 6,
-      username: "Kirsh_Kumar",
-      score: 2,
-      penalty: 50,
-      problems: {
-        A: { time: "0:05:24", status: "solved" },
-        B: { time: "", status: "unsolved" },
-        C: { time: "0:44:52", status: "solved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 7,
-      username: "rahmanazam_ai",
-      score: 2,
-      penalty: 58,
-      problems: {
-        A: { time: "0:09:43 (-1)", status: "solved-penalty" },
-        B: { time: "", status: "unsolved" },
-        C: { time: "0:28:18", status: "solved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 8,
-      username: "Shareeq",
-      score: 2,
-      penalty: 60,
-      problems: {
-        A: { time: "0:06:21", status: "solved" },
-        B: { time: "", status: "unsolved" },
-        C: { time: "0:54:03", status: "solved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 9,
-      username: "Mureed_Hussain",
-      score: 2,
-      penalty: 68,
-      problems: {
-        A: { time: "0:11:39 (-1)", status: "solved-penalty" },
-        B: { time: "(-1)", status: "failed" },
-        C: { time: "0:36:29", status: "solved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 10,
-      username: "alimo223",
-      score: 2,
-      penalty: 72,
-      problems: {
-        A: { time: "0:27:38", status: "solved" },
-        B: { time: "", status: "unsolved" },
-        C: { time: "0:45:06", status: "solved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 11,
-      username: "legacyyyyyy",
-      score: 2,
-      penalty: 94,
-      problems: {
-        A: { time: "0:07:45", status: "solved" },
-        B: { time: "", status: "unsolved" },
-        C: { time: "1:27:11", status: "solved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-    {
-      rank: 12,
-      username: "khanahsanali",
-      score: 1,
-      penalty: 2273,
-      problems: {
-        A: { time: "", status: "unsolved" },
-        B: { time: "", status: "unsolved" },
-        C: { time: "", status: "unsolved" },
-        D: { time: "", status: "unsolved" },
-        E: { time: "", status: "unsolved" },
-        F: { time: "", status: "unsolved" },
-        G: { time: "", status: "unsolved" },
-        H: { time: "", status: "unsolved" },
-        I: { time: "", status: "unsolved" },
-      },
-    },
-  ];
+const Leaderboard = ({ contestId }) => {
+  const [leaderboardData, setLeaderboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedSubmissions, setSelectedSubmissions] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [acceptLoading, setAcceptLoading] = useState(false);
 
-  const problems = [
-    { id: "A", solved: "12 / 14" },
-    { id: "B", solved: "4 / 6" },
-    { id: "C", solved: "11 / 11" },
-    { id: "D", solved: "1 / 6" },
-    { id: "E", solved: "0 / 0" },
-    { id: "F", solved: "0 / 0" },
-    { id: "G", solved: "0 / 0" },
-    { id: "H", solved: "0 / 0" },
-    { id: "I", solved: "0 / 0" },
-  ];
-
-  const formulate_leaderboard = () => {
-    const db_rows = [
-      {
-        submitted_id: "1213",
-        submitted_at: "00:02:34",
-        status: "Wrong Answer",
-        username: "ahsan_ali",
-        question_name: "Q2",
-        sql_mode: "mysql",
-        user_answer: "SELECT * FROM TABLES",
-      },
-      {
-        submitted_id: "1214",
-        submitted_at: "00:05:12",
-        status: "Correct Answer",
-        username: "john_doe",
-        question_name: "Q1",
-        sql_mode: "postgresql",
-        user_answer: "SELECT * FROM users",
-      },
-      {
-        submitted_id: "1215",
-        submitted_at: "00:10:45",
-        status: "Wrong Answer",
-        username: "ahsan_ali",
-        question_name: "Q3",
-        sql_mode: "mysql",
-        user_answer: "SELECT * FROM wrong_table",
-      },
-      {
-        submitted_id: "1216",
-        submitted_at: "00:12:30",
-        status: "Correct Answer",
-        username: "jane_doe",
-        question_name: "Q2",
-        sql_mode: "sqlite",
-        user_answer: "SELECT * FROM employees",
-      },
-      {
-        submitted_id: "1217",
-        submitted_at: "00:15:11",
-        status: "Pending",
-        username: "mike_smith",
-        question_name: "Q1",
-        sql_mode: "mysql",
-        user_answer: "SELECT * FROM customers",
-      },
-      {
-        submitted_id: "1218",
-        submitted_at: "00:20:50",
-        status: "Wrong Answer",
-        username: "john_doe",
-        question_name: "Q4",
-        sql_mode: "postgresql",
-        user_answer: "SELECT * FORM users",
-      },
-      {
-        submitted_id: "1219",
-        submitted_at: "00:25:00",
-        status: "Correct Answer",
-        username: "ahsan_ali",
-        question_name: "Q5",
-        sql_mode: "mysql",
-        user_answer: "SELECT * FROM orders",
-      },
-      {
-        submitted_id: "1220",
-        submitted_at: "00:30:20",
-        status: "Pending",
-        username: "alex_jones",
-        question_name: "Q3",
-        sql_mode: "sqlite",
-        user_answer: "SELECT * FROM products",
-      },
-      {
-        submitted_id: "1221",
-        submitted_at: "00:35:05",
-        status: "Correct Answer",
-        username: "jane_doe",
-        question_name: "Q1",
-        sql_mode: "mysql",
-        user_answer: "SELECT * FROM students",
-      },
-      {
-        submitted_id: "1222",
-        submitted_at: "00:40:10",
-        status: "Wrong Answer",
-        username: "mike_smith",
-        question_name: "Q2",
-        sql_mode: "postgresql",
-        user_answer: "SELECT * FROM wrong_table",
-      },
-    ];
-
-    let data = new Map();
-    for (let i in db_rows) {
-      let element = db_rows[i];
-
-      // If the username doesn't exist, create a new Map for that username
-      if (!data.has(element.username)) {
-        data.set(element.username, new Map());
+  useEffect(() => {
+    const fetchLeaderboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/api/leaderboard/${contestId}`);
+        setLeaderboardData(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load leaderboard data");
+        setLoading(false);
+        console.error("Error fetching leaderboard data:", err);
       }
+    };
 
-      // If the question_name doesn't exist for that username, create an empty array
-      if (!data.get(element.username).has(element.question_name)) {
-        data.get(element.username).set(element.question_name, []);
-      }
-
-      // Push the element details to the array for the specific question_name
-      data
-        .get(element.username)
-        .get(element.question_name)
-        .push([
-          element.submitted_at,
-          element.status,
-          element.sql_mode,
-          element.user_answer,
-        ]);
+    if (contestId) {
+      fetchLeaderboardData();
     }
+  }, [contestId]);
 
-    // console.log(data);
-    data.forEach((usernameMap, username) => {
-      console.log(`${username}:`);
-      usernameMap.forEach((submissions, question) => {
-        console.log(`  ${question}:`);
-        submissions.forEach((submission) => {
-          console.log(
-            `    - Submitted at: ${submission[0]}, Status: ${submission[1]}, SQL Mode: ${submission[2]}, Answer: ${submission[3]}`
-          );
-        });
+  const handleCellClick = (participant, questionNumber) => {
+    // Find the question in the participant's questions array
+    const question = participant.questions.find(
+      (q) => q.questionNumber === questionNumber
+    );
+
+    if (question && question.submissions.length > 0) {
+      setSelectedSubmissions({
+        username: participant.username,
+        participantId: participant.id,
+        questionNumber: questionNumber,
+        questionTitle: question.questionTitle,
+        questionId: question.id,
+        submissions: question.submissions,
       });
-    });
+      setDialogOpen(true);
+    }
   };
+
+  const handleAcceptSubmission = async (submissionIndex) => {
+    if (!selectedSubmissions) return;
+
+    setAcceptLoading(true);
+    try {
+      // API call to accept a wrong answer submission
+      await axios.post("/api/submissions/accept", {
+        participantId: selectedSubmissions.participantId,
+        questionId: selectedSubmissions.questionId,
+        submittedAt:
+          selectedSubmissions.submissions[submissionIndex].submittedAt,
+      });
+
+      // Success message
+      toast({
+        title: "Submission Accepted",
+        description: `Successfully accepted ${selectedSubmissions.username}'s submission for ${selectedSubmissions.questionNumber}`,
+        variant: "success",
+      });
+
+      // Refresh leaderboard data
+      const response = await axios.get(`/api/leaderboard/${contestId}`);
+      setLeaderboardData(response.data);
+
+      // Close dialog
+      setDialogOpen(false);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to accept submission. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error accepting submission:", err);
+    } finally {
+      setAcceptLoading(false);
+    }
+  };
+
+  if (loading)
+    return (
+      <TabsContent value="leaderboard">
+        <div className="text-white text-center py-8">
+          Loading leaderboard...
+        </div>
+        ); if (error) return{" "}
+        <div className="text-red-500 text-center py-8">{error}</div>; if
+        (!leaderboardData) return (
+        <div className="text-white text-center py-8">
+          No leaderboard data available
+        </div>
+      </TabsContent>
+    );
+
+  const { contest, questions, leaderboard } = leaderboardData;
+
+  // Create an array of problems with solved count information
+  const problems = questions.map((question) => {
+    // Count how many participants solved this question
+    const solvedCount = leaderboard.filter((participant) => {
+      const questionData = participant.questions.find(
+        (q) => q.id === question.id
+      );
+      return questionData && questionData.solved;
+    }).length;
+
+    return {
+      id: question.questionNumber,
+      title: question.questionTitle,
+      solved: `${solvedCount} / ${leaderboard.length}`,
+      difficulty: question.difficulty,
+      points: question.points,
+    };
+  });
 
   return (
     <TabsContent value="leaderboard">
       <Card className="bg-black/40 border border-red-600/40 relative w-full shadow-lg px-5 pb-5">
         <CardContent className="p-6 flex flex-col items-center">
           <div className="flex justify-center items-center mb-4 w-full">
-            <h3 className="text-xl font-bold text-white">Leaderboard</h3>
+            <h3 className="text-xl font-bold text-white">
+              {contest.name} Leaderboard
+            </h3>
           </div>
 
           <div className="w-full overflow-x-auto rounded-lg border border-red-500/30">
@@ -381,7 +165,7 @@ const Leaderboard = () => {
                     Rank
                   </TableHead>
                   <TableHead className="border border-red-900/50 p-2 text-left text-white font-medium">
-                    Team
+                    Participant
                   </TableHead>
                   <TableHead className="border border-red-900/50 p-2 text-center text-white font-medium">
                     Score
@@ -406,17 +190,17 @@ const Leaderboard = () => {
               </TableHeader>
 
               <TableBody>
-                {contestants.map((contestant) => (
+                {leaderboard.map((participant) => (
                   <TableRow
-                    key={contestant.rank}
+                    key={participant.id}
                     className={
-                      contestant.rank % 2 === 0
+                      participant.rank % 2 === 0
                         ? "hover:bg-red-900/10 transition-colors"
                         : "hover:bg-red-900/10 transition-colors"
                     }
                   >
                     <TableCell className="border border-red-900/30 p-2 text-white text-center font-mono">
-                      {contestant.rank}
+                      {participant.rank}
                     </TableCell>
                     <TableCell className="border border-red-900/30 p-2">
                       <div className="flex items-center gap-2">
@@ -424,40 +208,101 @@ const Leaderboard = () => {
                           <User color="red" />
                         </span>
                         <span className="text-white">
-                          {contestant.username}
+                          {participant.username}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="border border-red-900/30 p-2 text-center font-mono font-bold text-white">
-                      {contestant.score}
+                      {participant.score}
                     </TableCell>
                     <TableCell className="border border-red-900/30 p-2 text-center font-mono text-white">
-                      {contestant.penalty}
+                      {participant.penalty}
                     </TableCell>
 
-                    {["A", "B", "C", "D", "E", "F", "G", "H", "I"].map(
-                      (problemId) => {
-                        const problem = contestant.problems[problemId];
+                    {problems.map((problem, index) => {
+                      const questionData = participant.questions.find(
+                        (q) => q.questionNumber === problem.id
+                      );
 
-                        return (
-                          <TableCell
-                            key={`${contestant.rank}-${problemId}`}
-                            className={`border border-red-900/30 p-2 text-center text-white font-mono ${
-                              problem.status === "solved-highlight"
-                                ? "bg-green-900/90"
-                                : problem.status === "solved" ||
-                                  problem.status === "solved-penalty"
-                                ? "bg-green-600"
-                                : problem.status === "failed"
-                                ? "bg-red-900/100"
-                                : ""
-                            }`}
-                          >
-                            {problem.time}
-                          </TableCell>
-                        );
+                      console.log(questionData);
+
+                      // Determine the time to display and the status
+                      let timeDisplay = "";
+                      let status = "unsolved";
+
+                      if (questionData) {
+                        const acceptedSubmission =
+                          questionData.submissions.find(
+                            (s) => s.status === "Accepted"
+                          );
+
+                        if (acceptedSubmission) {
+                          // Extract time from the submission time string (format: "Apr 10, 2025 | 10:22:00 AM")
+                          const timeMatch =
+                            acceptedSubmission.submittedAt.match(/\d+:\d+:\d+/);
+                          timeDisplay = timeMatch ? timeMatch[0] : "";
+
+                          // Count wrong submissions
+                          const wrongSubmissions =
+                            // questionData.submissions.filter(
+                            //   (s) =>
+                            //     s.status === "Wrong Answer" &&
+                            //     new Date(s.submittedAt) <
+                            //       new Date(acceptedSubmission.submittedAt)
+                            // ).length;
+                            questionData.wrongAnswers;
+
+                          if (wrongSubmissions > 0) {
+                            timeDisplay += ` | (-${wrongSubmissions})`;
+                            status = "solved-penalty";
+                          } else {
+                            status = questionData.firstSolve
+                              ? "solved-highlight"
+                              : "solved";
+                          }
+                        } else {
+                          // If there are only wrong submissions
+                          const wrongCount =
+                            // questionData.submissions.filter(
+                            //   (s) => s.status === "Wrong Answer"
+                            // ).length;
+                            questionData.wrongAnswers;
+
+                          if (wrongCount > 0) {
+                            timeDisplay = `(-${wrongCount})`;
+                            status = "failed";
+                          }
+                        }
                       }
-                    )}
+
+                      return (
+                        <TableCell
+                          key={`${participant.id}-${problem.id}`}
+                          className={`border border-red-900/30 p-2 text-center text-white font-mono cursor-pointer ${
+                            status === "solved-highlight"
+                              ? "bg-green-900/90"
+                              : status === "solved" ||
+                                status === "solved-penalty"
+                              ? "bg-green-600"
+                              : status === "failed"
+                              ? "bg-red-900/100"
+                              : ""
+                          } hover:opacity-80`}
+                          onClick={() =>
+                            handleCellClick(participant, problem.id)
+                          }
+                          title={
+                            questionData && questionData.submissions.length > 0
+                              ? "Click to view submissions"
+                              : ""
+                          }
+                        >
+                          {timeDisplay.split("|").map((t, t_index) => {
+                            return <div key={t_index}>{t}</div>;
+                          })}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 ))}
               </TableBody>
@@ -465,6 +310,172 @@ const Leaderboard = () => {
           </div>
         </CardContent>
       </Card>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="bg-black text-white border border-red-500/30 max-w-5xl rounded-lg shadow-xl">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-xl font-bold flex items-center">
+              {selectedSubmissions && (
+                <span className="flex items-center">
+                  <UserCircle className="w-5 h-5 mr-2 text-red-400" />
+                  <span className="text-red-400 font-medium">
+                    {selectedSubmissions.username}
+                  </span>
+                  <span className="mx-2">-</span>
+                  <span className="font-semibold">
+                    {selectedSubmissions.questionNumber}:{" "}
+                    {selectedSubmissions.questionTitle}
+                  </span>
+                </span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedSubmissions && (
+            <div className="max-h-96 overflow-y-auto custom-scrollbar rounded-md border border-red-500/20">
+              <Table className="w-full">
+                <TableHeader className="bg-gradient-to-r from-red-900/30 to-gray-800/50 sticky top-0 z-10">
+                  <TableRow>
+                    <TableHead className="text-white font-medium py-3">
+                      Submitted At
+                    </TableHead>
+                    <TableHead className="text-white font-medium">
+                      Status
+                    </TableHead>
+                    <TableHead className="text-white font-medium">
+                      SQL Mode
+                    </TableHead>
+                    <TableHead className="text-white font-medium">
+                      Solution
+                    </TableHead>
+                    <TableHead className="text-white font-medium">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedSubmissions.submissions.map((submission, index) => {
+                    // Find the accepted submission for reference
+                    const acceptedSubmission =
+                      selectedSubmissions.submissions.find(
+                        (s) => s.status === "Accepted"
+                      );
+
+                    // Count how many wrong attempts before this one if it's the accepted submission
+                    let wrongAttemptsBeforeAccepted = 0;
+                    if (submission.status === "Accepted") {
+                      wrongAttemptsBeforeAccepted =
+                        selectedSubmissions.submissions.filter(
+                          (s) =>
+                            s.status === "Wrong Answer" &&
+                            new Date(s.submittedAt) <
+                              new Date(submission.submittedAt)
+                        ).length;
+                    }
+
+                    return (
+                      <TableRow
+                        key={index}
+                        className={`border-t border-red-500/30 transition-colors hover:bg-gray-800/50 ${
+                          submission.status === "Accepted"
+                            ? "bg-green-900/10"
+                            : submission.status === "Wrong Answer"
+                            ? "bg-red-900/10"
+                            : "bg-yellow-900/10"
+                        }`}
+                      >
+                        <TableCell className="text-gray-300 text-sm">
+                          {/* {new Date(
+                            
+                          ).toLocaleString()} */}
+                          {submission.submittedAt.split("|").join("\n")}
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium flex items-center w-fit ${
+                              submission.status === "Accepted"
+                                ? "bg-green-600/80 text-white"
+                                : submission.status === "Wrong Answer"
+                                ? "bg-red-600/80 text-white"
+                                : "bg-yellow-600/80 text-white"
+                            }`}
+                          >
+                            {submission.status === "Accepted" && (
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                            )}
+                            {submission.status === "Wrong Answer" && (
+                              <XCircle className="w-3 h-3 mr-1" />
+                            )}
+                            {submission.status === "Processing" && (
+                              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                            )}
+                            {submission.status}
+                            {submission.status === "Accepted" &&
+                              wrongAttemptsBeforeAccepted > 0 && (
+                                <span className="ml-1 text-gray-200 text-xs">
+                                  (after {wrongAttemptsBeforeAccepted} wrong{" "}
+                                  {wrongAttemptsBeforeAccepted === 1
+                                    ? "attempt"
+                                    : "attempts"}
+                                  )
+                                </span>
+                              )}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-gray-300 text-sm">
+                          {submission.sql_mode}
+                        </TableCell>
+                        <TableCell className="max-w-md">
+                          <div className="bg-gray-800 p-2 rounded border border-gray-700 overflow-x-auto">
+                            <pre className="text-xs font-mono text-gray-200">
+                              <code>{submission.userAnswer}</code>
+                            </pre>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {submission.status === "Wrong Answer" && (
+                            <Button
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 transition-all duration-200 hover:shadow-lg"
+                              onClick={() => handleAcceptSubmission(index)}
+                              disabled={acceptLoading}
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                              Accept
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          <div className="flex justify-between mt-6">
+            <Button
+              variant="outline"
+              className="border-red-500/50 text-black hover:bg-red-900/20 hover:text-white transition-colors"
+              onClick={() => setDialogOpen(false)}
+            >
+              <XCircle className="w-4 h-4 mr-2" />
+              Close
+            </Button>
+            {selectedSubmissions &&
+              selectedSubmissions.submissions.some(
+                (s) => s.status === "Wrong Answer"
+              ) && (
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white transition-colors"
+                  onClick={() => handleReviewAll()}
+                >
+                  <CheckSquare className="w-4 h-4 mr-2" />
+                  Review All
+                </Button>
+              )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </TabsContent>
   );
 };
