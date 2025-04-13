@@ -62,33 +62,33 @@ const DDLTab = ({
     });
   };
 
-  const handleEditClick = () => {
-    setEditedDdl(ddl[sqlMode]);
-    setIsEditDialogOpen(true);
-  };
+  // const handleEditClick = () => {
+  //   setEditedDdl(ddl[sqlMode]);
+  //   setIsEditDialogOpen(true);
+  // };
 
-  const handleSaveEdit = async () => {
-    try {
-      const ddlKey = sqlMode + "_ddl"; // e.g., mysql_ddl
+  // const handleSaveEdit = async () => {
+  //   try {
+  //     const ddlKey = sqlMode + "_ddl"; // e.g., mysql_ddl
 
-      const res = await axios.put(`/api/contest-info/${contestId}/ddl`, {
-        ddlType: ddlKey,
-        ddl: editedDdl,
-      });
+  //     const res = await axios.put(`/api/contest-info/${contestId}/ddl`, {
+  //       ddlType: ddlKey,
+  //       ddl: editedDdl,
+  //     });
 
-      // Update only the specific DDL key in state
-      setDdl((prev) => ({
-        ...prev,
-        [ddlKey]: editedDdl,
-      }));
+  //     // Update only the specific DDL key in state
+  //     setDdl((prev) => ({
+  //       ...prev,
+  //       [ddlKey]: editedDdl,
+  //     }));
 
-      setIsEditDialogOpen(false);
-      showEditedToast();
-    } catch (error) {
-      console.error("Error updating DDL:", error);
-      showErrorToast();
-    }
-  };
+  //     setIsEditDialogOpen(false);
+  //     showEditedToast();
+  //   } catch (error) {
+  //     console.error("Error updating DDL:", error);
+  //     showErrorToast();
+  //   }
+  // };
 
   // console.log(ddl);
 
@@ -114,14 +114,6 @@ const DDLTab = ({
                 </SelectContent>
               </Select>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={handleEditClick}
-                className="hover:border-red-500/50 bg-transparent hover:text-white text-white hover:bg-red-900/30"
-              >
-                <Edit className="w-4 h-4 mr-1" /> Edit
-              </Button>
-              <Button
                 onClick={handleCopy}
                 variant="outline"
                 size="sm"
@@ -140,49 +132,6 @@ const DDLTab = ({
           </pre>
         </CardContent>
       </Card>
-
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-black/90 border border-red-500/30 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-red-300 w-full text-center">
-              Edit Database Schema
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="ddl-editor"
-                className="text-sm font-medium text-gray-300"
-              >
-                SQL DDL Statements
-              </label>
-              <Textarea
-                id="ddl-editor"
-                value={editedDdl}
-                onChange={(e) => setEditedDdl(e.target.value)}
-                rows={15}
-                className="bg-black/60 border-red-500/30 text-white font-mono"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsEditDialogOpen(false)}
-              className="hover:border-red-500/50 bg-transparent text-white hover:text-white hover:bg-red-900/30"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSaveEdit}
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </TabsContent>
   );
 };

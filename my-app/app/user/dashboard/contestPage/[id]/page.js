@@ -276,6 +276,7 @@ import QuestionsTab from "./Components/QuestionsTab";
 import DDLTab from "./Components/DDLTab";
 import VisualSchemaTab from "./Components/VisualSchemaTab";
 import Leaderboard from "./Components/Leaderboard";
+import StatusTab from "./Components/StatusTab";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
@@ -453,6 +454,12 @@ const ContestPage = () => {
         return "bg-yellow-500/30 text-yellow-200";
       case "Hard":
         return "bg-red-500/30 text-red-200";
+      case "PostgreSQL":
+        return "bg-red-500/30 text-red-200";
+      case "MySQL":
+        return "bg-red-500/30 text-red-200";
+      case "Oracle":
+        return "bg-red-500/30 text-red-200";
       default:
         return "bg-gray-500/30 text-gray-200";
     }
@@ -519,7 +526,6 @@ const ContestPage = () => {
                   {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:
                   {formatTime(timeLeft.seconds)}
                 </span>
-
               </div>
               <div className="text-sm text-red-300">
                 {contestStatus === "ongoing"
@@ -542,6 +548,13 @@ const ContestPage = () => {
             >
               <FileQuestion className="w-4 h-4 mr-2" />
               Questions
+            </TabsTrigger>
+            <TabsTrigger
+              value="status"
+              className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Status
             </TabsTrigger>
             <TabsTrigger
               value="leaderboard"
@@ -574,6 +587,11 @@ const ContestPage = () => {
             navigateQuestion={navigateQuestion}
             contestId={contestId}
           />
+
+          <StatusTab
+            contestId={contestId}
+            getDifficultyStyles={getDifficultyStyles}
+          /> 
 
           <Leaderboard contestId={contestId} />
 

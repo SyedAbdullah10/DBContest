@@ -336,9 +336,6 @@ const Leaderboard = ({ contestId }) => {
                     <TableHead className="text-white font-medium">
                       Solution
                     </TableHead>
-                    <TableHead className="text-white font-medium">
-                      Actions
-                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -420,21 +417,6 @@ const Leaderboard = ({ contestId }) => {
                             </pre>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          {submission.status === "Wrong Answer" && (
-                            <Button
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 transition-all duration-200 hover:shadow-lg"
-                              onClick={() =>
-                                handleAcceptSubmission(submission.submission_id)
-                              }
-                              disabled={acceptLoading}
-                            >
-                              <CheckCircle className="w-4 h-4" />
-                              Accept
-                            </Button>
-                          )}
-                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -452,7 +434,7 @@ const Leaderboard = ({ contestId }) => {
               <XCircle className="w-4 h-4 mr-2" />
               Close
             </Button>
-            {selectedSubmissions &&
+            {/* {selectedSubmissions &&
               selectedSubmissions.submissions.some(
                 (s) => s.status === "Wrong Answer"
               ) && (
@@ -463,7 +445,7 @@ const Leaderboard = ({ contestId }) => {
                   <CheckSquare className="w-4 h-4 mr-2" />
                   Review All
                 </Button>
-              )}
+              )} */}
           </div>
         </DialogContent>
       </Dialog>
