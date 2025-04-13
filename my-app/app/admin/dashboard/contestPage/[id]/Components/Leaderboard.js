@@ -38,6 +38,7 @@ const Leaderboard = ({ contestId }) => {
   const [selectedSubmissions, setSelectedSubmissions] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [acceptLoading, setAcceptLoading] = useState(false);
+  const [rejectLoading, setRejectLoading] = useState(false);
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
@@ -77,13 +78,15 @@ const Leaderboard = ({ contestId }) => {
     }
   };
 
-  const handleAcceptSubmission = async (submission_id) => {
+  const handleSubmissionStatus = async (submission_id, status) => {
     if (!selectedSubmissions) return;
 
     setAcceptLoading(true);
     try {
       // Call the correct API route with submission_id in the URL
-      await axios.post(`/api/submission/${submission_id}/accept`);
+      await axios.post(`/api/submission/${submission_id}/status`, {
+        status,
+      });
 
       showUpdatedToast();
       // Optionally refresh leaderboard
@@ -426,12 +429,31 @@ const Leaderboard = ({ contestId }) => {
                               size="sm"
                               className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 transition-all duration-200 hover:shadow-lg"
                               onClick={() =>
-                                handleAcceptSubmission(submission.submission_id)
+                                handleSubmissionStatus(
+                                  submission.submission_id,
+                                  "Accept"
+                                )
                               }
                               disabled={acceptLoading}
                             >
                               <CheckCircle className="w-4 h-4" />
                               Accept
+                            </Button>
+                          )}
+                          {submission.status === "Accepted" && (
+                            <Button
+                              size="sm"
+                              className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1 transition-all duration-200 hover:shadow-lg"
+                              onClick={() =>
+                                handleSubmissionStatus(
+                                  submission.submission_id,
+                                  "Wrong Answer"
+                                )
+                              }
+                              disabled={rejectLoading}
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                              Reject
                             </Button>
                           )}
                         </TableCell>

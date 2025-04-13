@@ -303,8 +303,6 @@ const ContestPage = () => {
 
   // States for timer edit dialog
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [editStartTime, setEditStartTime] = useState("");
-  const [editEndTime, setEditEndTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mock questions for the contest
@@ -383,10 +381,6 @@ const ContestPage = () => {
         } else {
           setContestStatus("ended");
         }
-
-        // Prepare initial values for edit form
-        setEditStartTime(formatDateTimeForInput(start));
-        setEditEndTime(formatDateTimeForInput(end));
 
         const diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
         const hours = end >= now ? Math.floor(diffInSeconds / 3600) : 0;
@@ -499,92 +493,6 @@ const ContestPage = () => {
 
     return `${month} ${date}, ${year} | ${hours}:${minutes}:${seconds} ${ampm}`;
   };
-  const handleEditTimerSubmit = async () => {
-    try {
-      setIsSubmitting(true);
-
-      // Format times for API
-      const formattedStartTime = formatDateTimeForAPI(editStartTime);
-      const formattedEndTime = formatDateTimeForAPI(editEndTime);
-
-      // Validate times
-      const startDate = new Date(editStartTime);
-      const endDate = new Date(editEndTime);
-      const now = new Date();
-
-      if (endDate <= startDate) {
-        toast({
-          title: "Invalid time range",
-          description: "End time must be after start time",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (contestStatus === "ongoing" && endDate <= now) {
-        toast({
-          title: "Invalid end time",
-          description:
-            "For ongoing contests, new end time must be in the future",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Prepare update data based on contest status
-      const updateData = {
-        status: contestStatus,
-        endTime: formattedEndTime,
-        startTime: formattedStartTime,
-      };
-
-      console.log(updateData);
-
-      // Send update to API
-      const response = await axios.put(
-        `/api/contest-info/${contestId}/update-timer`,
-        updateData
-      );
-
-      if (response.status === 200) {
-        // Update local contest info
-        setContestInfo((prev) => ({
-          ...prev,
-          endTime: formattedEndTime,
-          ...(contestStatus === "upcoming"
-            ? { startTime: formattedStartTime }
-            : {}),
-        }));
-
-        // Update contest status if needed
-        if (contestStatus === "upcoming" && startDate <= now && endDate > now) {
-          setContestStatus("ongoing");
-        }
-
-        // Recalculate time left
-        const diffInSeconds = Math.floor((endDate - now) / 1000);
-        const hours = Math.floor(diffInSeconds / 3600);
-        const minutes = Math.floor((diffInSeconds % 3600) / 60);
-        const seconds = diffInSeconds % 60;
-
-        setTimeLeft({ hours, minutes, seconds });
-        showTimerUpdatedToast();
-
-        setShowEditDialog(false);
-      }
-    } catch (error) {
-      console.error("Failed to update contest timer:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update contest timer. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen text-white">
@@ -612,18 +520,6 @@ const ContestPage = () => {
                   {formatTime(timeLeft.seconds)}
                 </span>
 
-                {/* Edit Icon - only visible for upcoming or ongoing contests */}
-                {contestStatus !== "ended" && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 rounded-full hover:bg-red-500/20 p-1"
-                    onClick={() => setShowEditDialog(true)}
-                    title="Edit Timer"
-                  >
-                    <Edit className="h-4 w-4 text-red-300" />
-                  </Button>
-                )}
               </div>
               <div className="text-sm text-red-300">
                 {contestStatus === "ongoing"
@@ -694,69 +590,6 @@ const ContestPage = () => {
           <VisualSchemaTab schema={{}} />
         </Tabs>
       </main>
-
-      {/* Edit Timer Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="bg-black border border-red-500/30 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Edit Contest Timer</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            {/* Start time field - only editable for upcoming contests */}
-            <div className="space-y-2">
-              <label htmlFor="startTime" className="text-sm font-medium">
-                Start Time
-              </label>
-              <Input
-                id="startTime"
-                type="datetime-local"
-                value={editStartTime}
-                onChange={(e) => setEditStartTime(e.target.value)}
-                className="bg-gray-800 border-gray-700"
-                disabled={contestStatus !== "upcoming"}
-              />
-              {contestStatus !== "upcoming" && (
-                <p className="text-xs text-red-300">
-                  Start time cannot be modified for ongoing contests
-                </p>
-              )}
-            </div>
-
-            {/* End time field - editable for both upcoming and ongoing contests */}
-            <div className="space-y-2">
-              <label htmlFor="endTime" className="text-sm font-medium">
-                End Time
-              </label>
-              <Input
-                id="endTime"
-                type="datetime-local"
-                value={editEndTime}
-                onChange={(e) => setEditEndTime(e.target.value)}
-                className="bg-gray-800 border-gray-700"
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => setShowEditDialog(false)}
-              className="hover:bg-gray-800"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="default"
-              onClick={handleEditTimerSubmit}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Updating..." : "Update Timer"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

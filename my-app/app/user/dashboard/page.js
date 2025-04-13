@@ -434,7 +434,7 @@ export default function UserDashboard() {
       selectedContest.password == "" ||
       selectedContest.password == contestPass
     )
-      router.push(`/admin/dashboard/contestPage/${selectedContest.id}`);
+      router.push(`/user/dashboard/contestPage/${selectedContest.id}`);
     else setWrongPassError(true);
   };
 
