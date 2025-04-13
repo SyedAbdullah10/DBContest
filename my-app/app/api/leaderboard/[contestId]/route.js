@@ -115,6 +115,7 @@ export async function GET(request, { params }) {
 
       // Add submission to the user's record
       userRecord.questions[questionId].submissions.push({
+        submission_id: submission.submission_id,
         submittedAt: submission.submitted_at,
         status: submission.status,
         sql_mode: submission.sql_mode,

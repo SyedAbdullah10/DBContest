@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useState, useEffect } from "react";
 import { FaUsers, FaPlusCircle, FaClipboardList } from "react-icons/fa";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,18 @@ import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 import supabase from "@/supabaseClient";
 import LogoutButton from "@/app/Components/LogoutButton";
+
+import axios from "axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
   return (
@@ -24,14 +36,94 @@ const DashboardCard = ({ Icon, title, description, onClickHandler }) => {
   );
 };
 
-const ContestTabs = ({ contests }) => {
+const contests = {
+  upcoming: [
+    {
+      id: 1,
+      name: "Spring Coding Challenge",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
+      startTime: "3:00:00 PM",
+      endTime: "4:00:00 PM",
+    },
+    {
+      id: 2,
+      name: "AI Hackathon",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
+      startTime: "3:00:00 PM",
+      endTime: "4:00:00 PM",
+    },
+  ],
+  ongoing: [
+    {
+      id: 5,
+      name: "Data Structures Contest",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
+      startTime: "3:00:00 PM",
+      endTime: "4:00:00 PM",
+    },
+    {
+      id: 6,
+      name: "Web Development Sprint",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
+      startTime: "3:00:00 PM",
+      endTime: "4:00:00 PM",
+    },
+  ],
+  finished: [
+    {
+      id: 3,
+      name: "Winter Data Science Contest",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
+      startTime: "3:00:00 PM",
+      endTime: "4:00:00 PM",
+    },
+    {
+      id: 4,
+      name: "Cybersecurity CTF",
+      startDate: "April 11, 2025",
+      endDate: "April 15, 2025",
+      startTime: "3:00:00 PM",
+      endTime: "4:00:00 PM",
+    },
+  ],
+};
+
+const ContestTabs = ({ contests, handleContestCardClick }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // const filterContests = (contests) => {
+  //   console.log(contests);
+
+  //   if (searchQuery == "") return;
+  //   return contests[activeTab]?.filter((contest) =>
+  //     contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  //   );
+  // };
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-8">
+      {/* Search Bar */}
+      <input
+        type="text"
+        placeholder="Search Contests..."
+        value={searchQuery}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          // contests[activeTab] = filterContests(contests);
+        }}
+        className="w-full p-2 mb-4 text-white bg-black/50 border border-red-500/40 rounded-lg focus:outline-none focus:border-red-500"
+      />
+
+      {/* Tabs */}
       <div className="flex mb-4 border-b border-red-500/50">
-        {["upcoming", "ongoing", "finished"].map((tab) => (
+        {["upcoming", "ongoing", "finished"]?.map((tab) => (
           <button
             key={tab}
             className={`flex-1 text-lg font-semibold py-2 transition-all ${
@@ -56,21 +148,225 @@ const ContestTabs = ({ contests }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {contests[activeTab].map((contest) => (
-          <div
-            key={contest.id}
-            onClick={() => router.push(`/user/dashboard/contest/${contest.id}`)}
-            className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg hover:bg-black/60 cursor-pointer"
-          >
-            <h3 className="text-white text-2xl font-bold">{contest.name}</h3>
-            <p className="text-white/70">Date: {contest.date}</p>
-            <p className="text-white/70">Starting On: {contest.startTime}</p>
-          </div>
-        ))}
+        {activeTab === "upcoming" && (
+          <UpcomingContests
+            contests={contests?.upcoming}
+            router={router}
+            searchQuery={searchQuery}
+            handleContestCardClick={handleContestCardClick}
+          />
+        )}
+        {activeTab === "ongoing" && (
+          <OngoingContests
+            contests={contests?.ongoing}
+            router={router}
+            searchQuery={searchQuery}
+            handleContestCardClick={handleContestCardClick}
+          />
+        )}
+        {activeTab === "finished" && (
+          <FinishedContests
+            contests={contests?.finished}
+            router={router}
+            searchQuery={searchQuery}
+            handleContestCardClick={handleContestCardClick}
+          />
+        )}
       </motion.div>
     </div>
   );
 };
+
+// Improved function to parse date and time strings into a Date object
+const parseDateTime = (dateStr, timeStr) => {
+  // Parse the date string (format: "April 11, 2025")
+  const dateParts = new Date(dateStr);
+
+  // Parse the time string (format: "3:00:00 PM")
+  const timeParts = timeStr.match(/(\d+):(\d+):(\d+)\s*([AP]M)/i);
+
+  if (!timeParts) return new Date(); // Return current date if parsing fails
+
+  let hours = parseInt(timeParts[1]);
+  const minutes = parseInt(timeParts[2]);
+  const seconds = parseInt(timeParts[3]);
+  const ampm = timeParts[4].toUpperCase();
+
+  // Convert 12-hour format to 24-hour format
+  if (ampm === "PM" && hours < 12) hours += 12;
+  if (ampm === "AM" && hours === 12) hours = 0;
+
+  // Set the time components on the date object
+  dateParts.setHours(hours, minutes, seconds, 0);
+
+  return dateParts;
+};
+
+// Format date for display in the required format: "date, time"
+const formatTime = (dateObj) => {
+  if (!(dateObj instanceof Date) || isNaN(dateObj)) return "Invalid Date";
+
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+
+  return dateObj.toLocaleDateString("en-US", options);
+};
+
+// Calculate time remaining between now and a target date
+const calculateTimeLeft = (targetDate) => {
+  if (!(targetDate instanceof Date) || isNaN(targetDate)) return "00:00:00";
+
+  const now = new Date();
+  const difference = targetDate - now;
+
+  if (difference <= 0) return "00:00:00";
+
+  const hours = Math.floor(difference / 3600000);
+  const minutes = Math.floor((difference % 3600000) / 60000);
+  const seconds = Math.floor((difference % 60000) / 1000);
+
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+};
+
+// Custom hook for timer to prevent re-rendering the entire list
+const useTimer = (targetDate) => {
+  const [timeLeft, setTimeLeft] = useState("00:00:00");
+
+  useEffect(() => {
+    // Initialize time immediately
+    setTimeLeft(calculateTimeLeft(targetDate));
+
+    // Set up interval
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(targetDate));
+    }, 1000);
+
+    // Clean up interval
+    return () => clearInterval(timer);
+  }, [targetDate]); // Only re-run if targetDate changes
+
+  return timeLeft;
+};
+
+// Contest Card Component to isolate re-renders
+const ContestCard = ({ contest, type, router, handleContestCardClick }) => {
+  // Parse dates based on contest type
+  const startDateTime = parseDateTime(contest.startDate, contest.startTime);
+  const endDateTime = parseDateTime(contest.endDate, contest.endTime);
+
+  // Use timer hook based on contest type
+  const timeLeft = useTimer(type === "upcoming" ? startDateTime : endDateTime);
+
+  return (
+    <div
+      key={contest.id}
+      onClick={() => handleContestCardClick(contest)}
+      className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg hover:bg-black/60 cursor-pointer"
+    >
+      <h3 className="text-white text-2xl font-bold">{contest.name}</h3>
+
+      {type === "upcoming" && (
+        <>
+          <p className="text-white/70">Starts In: {timeLeft}</p>
+          <p className="text-white/70">
+            Start Time: {formatTime(startDateTime)}
+          </p>
+        </>
+      )}
+
+      {type === "ongoing" && (
+        <>
+          <p className="text-white/70">Ends In: {timeLeft}</p>
+          <p className="text-white/70">End Time: {formatTime(endDateTime)}</p>
+        </>
+      )}
+
+      {type === "finished" && (
+        <>
+          <p className="text-white/70">Started: {formatTime(startDateTime)}</p>
+          <p className="text-white/70">Ended: {formatTime(endDateTime)}</p>
+        </>
+      )}
+    </div>
+  );
+};
+
+// Simplified components that use ContestCard
+const UpcomingContests = ({
+  contests,
+  router,
+  searchQuery,
+  handleContestCardClick,
+}) => (
+  <>
+    {contests
+      ?.filter((contest) =>
+        contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((contest) => (
+        <ContestCard
+          key={contest.id}
+          contest={contest}
+          type="upcoming"
+          router={router}
+          handleContestCardClick={handleContestCardClick}
+        />
+      ))}
+  </>
+);
+
+const OngoingContests = ({
+  contests,
+  router,
+  searchQuery,
+  handleContestCardClick,
+}) => (
+  <>
+    {contests
+      ?.filter((contest) =>
+        contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((contest) => (
+        <ContestCard
+          key={contest.id}
+          contest={contest}
+          type="ongoing"
+          router={router}
+          handleContestCardClick={handleContestCardClick}
+        />
+      ))}
+  </>
+);
+
+const FinishedContests = ({
+  contests,
+  router,
+  searchQuery,
+  handleContestCardClick,
+}) => (
+  <>
+    {contests
+      ?.filter((contest) =>
+        contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((contest) => (
+        <ContestCard
+          key={contest.id}
+          contest={contest}
+          type="finished"
+          router={router}
+          handleContestCardClick={handleContestCardClick}
+        />
+      ))}
+  </>
+);
 
 export default function UserDashboard() {
   const router = useRouter();
@@ -82,63 +378,28 @@ export default function UserDashboard() {
   });
 
   const [contests, setContests] = useState({
-    upcoming: [],
     ongoing: [],
-    finished: []
-  }); 
-
-  // Sample contests data
-  // const contests = {
-  //   upcoming: [
-  //     { id: 1, title: "Spring Coding Challenge", date: "April 15, 2025" },
-  //     { id: 2, title: "AI Hackathon", date: "May 10, 2025" },
-  //   ],
-  //   ongoing: [
-  //     { id: 3, title: "Data Structures Contest", date: "March 25, 2025" },
-  //     { id: 4, title: "Web Development Sprint", date: "March 30, 2025" },
-  //   ],
-  //   finished: [
-  //     { id: 5, title: "Winter Data Science Contest", date: "March 5, 2025" },
-  //     { id: 6, title: "Cybersecurity CTF", date: "February 20, 2025" },
-  //   ],
-  // };
+    upcoming: [],
+    finished: [],
+  });
+  const [isContestPassDialogOpen, setIsContestPassDialogOpen] = useState(false);
+  const [contestPass, setContestPass] = useState("");
+  const [selectedContest, setSelectedContest] = useState({});
+  const [wrongPassError, setWrongPassError] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const fetchContests = async () => {
-      const { data, error } = await supabase
-        .from('Contests')
-        .select('*')
-        .order('date', { ascending: true }); // Adjust ordering as needed
-
-        console.log(data)
-
-      if (error) {
-        console.error("Error fetching contests:", error);
-      } else {
-        // Organize contests into the desired structure
-        const organizedContests = {
-          upcoming: [],
-          ongoing: [],
-          finished: []
-        };
-
-        data.forEach(contest => {
-          if (contest.status === 'upcoming') {
-            organizedContests.upcoming.push(contest);
-          } else if (contest.status === 'ongoing') {
-            organizedContests.ongoing.push(contest);
-          } else if (contest.status === 'finished') {
-            organizedContests.finished.push(contest);
-          }
-        });
-
-        setContests(organizedContests);
+      try {
+        const response = await axios.get("/api/dashboard-contests");
+        setContests(response.data);
+      } catch (error) {
+        console.error("Failed to fetch contests:", error);
       }
     };
 
     fetchContests();
   }, []);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -161,6 +422,21 @@ export default function UserDashboard() {
   if (!session || session.user.role !== "user") {
     return redirect("/user");
   }
+
+  const handleContestCardClick = (contest) => {
+    setIsContestPassDialogOpen(true);
+    setContestPass("");
+    setSelectedContest(contest);
+  };
+
+  const handleContestPassEnter = () => {
+    if (
+      selectedContest.password == "" ||
+      selectedContest.password == contestPass
+    )
+      router.push(`/admin/dashboard/contestPage/${selectedContest.id}`);
+    else setWrongPassError(true);
+  };
 
   return (
     <motion.div
@@ -206,7 +482,50 @@ export default function UserDashboard() {
           onClickHandler={() => {}}
         />
       </div>
-      <ContestTabs contests={contests} />
+      <ContestTabs
+        contests={contests}
+        handleContestCardClick={handleContestCardClick}
+      />
+      <Dialog open={isContestPassDialogOpen}>
+        <DialogContent className="bg-black/40 backdrop-blur-lg border border-red-500/30 shadow-xl rounded-lg">
+          <DialogHeader>
+            <DialogTitle className="text-white text-center text-2xl">
+              Enter Password
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-white">
+            <div className="flex flex-col gap-1">
+              <label className="text-md text-red-400">{"Password"}</label>
+              <Input
+                type={"password"}
+                value={contestPass}
+                onChange={(e) => setContestPass(e.target.value)}
+                placeholder={"Enter Contest Password"}
+                className="bg-black/50 border border-red-500/40 text-white placeholder-gray-400 focus:ring-red-500 focus:border-red-500"
+              />
+              {wrongPassError && (
+                <span className="text-sm text-red-600">Incorrect password</span>
+              )}
+            </div>
+          </div>
+          <DialogFooter className="flex justify-end space-x-3 mt-4">
+            <Button
+              variant="outline"
+              className="border border-white text-black px-4 py-2 rounded-lg transition hover:bg-gray-300 hover:border-transparent"
+              onClick={() => setIsContestPassDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              className="bg-red-500 text-white px-4 py-2 rounded-lg transition hover:bg-red-700"
+              onClick={handleContestPassEnter}
+            >
+              Enter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
