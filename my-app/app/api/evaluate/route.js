@@ -1,6 +1,5 @@
 // app/api/evaluate/route.js
 import { NextResponse } from "next/server";
-import supabase from "@/supabaseClient";
 
 export async function POST(req) {
   try {
@@ -42,7 +41,7 @@ export async function POST(req) {
     }
 
     // Step 3: Execute user query
-    const userRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/execute`, {
+    const userRes = await fetch(`/api/execute-participant`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: user_answer, dbType, ddl }),
