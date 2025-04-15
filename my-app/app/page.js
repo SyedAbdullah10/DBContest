@@ -56,17 +56,16 @@ export default function Home() {
   //   };
   // }, []);
 
-  // const { data: session, data } = useSession();
-
-  // if (!session) {
-  //   return redirect("/user");
-  // }
-
-  // if (session?.user?.role === "admin") {
-  //   return redirect("/admin");
-  // }
-
-  // return redirect("/user");
+  const { data: session, data } = useSession();
+  useEffect(() => {
+    if (!session) {
+      return redirect("/user");
+    }
+    if (session?.user?.role === "admin") {
+      return redirect("/admin");
+    }
+    return redirect("/user");
+  }, []);
 
   return <>Hello World</>;
 }
