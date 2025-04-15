@@ -341,13 +341,14 @@ import {
   Edit,
   X,
 } from "lucide-react";
+import { AlertCircle, Timer, Calendar, Lock } from "lucide-react";
 import Logo from "@/app/Components/Logo";
 import QuestionsTab from "./Components/QuestionsTab";
 import DDLTab from "./Components/DDLTab";
 import VisualSchemaTab from "./Components/VisualSchemaTab";
 import Leaderboard from "./Components/Leaderboard";
 import StatusTab from "./Components/StatusTab";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
@@ -360,8 +361,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { showTimerUpdatedToast } from "@/app/Components/Dumped/utils/toast";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const ContestPage = () => {
+  const { data: session, status } = useSession();
+  if (!session || session.user.role !== "user") {
+    return redirect("/user");
+  }
+
   const [timeLeft, setTimeLeft] = useState({
     hours: 0,
     minutes: 0,
@@ -497,20 +505,20 @@ const ContestPage = () => {
   // Get difficulty styling
   const getDifficultyStyles = (difficulty) => {
     // difficulty[0] -= 32;
-    difficulty = difficulty?.charAt(0).toUpperCase() + difficulty?.slice(1);
+    difficulty = difficulty.toUpperCase();
     switch (difficulty) {
-      case "Easy":
+      case "EASY":
         return "bg-green-500/30 text-green-200";
-      case "Medium":
+      case "MEDIUM":
         return "bg-yellow-500/30 text-yellow-200";
-      case "Hard":
+      case "HARD":
         return "bg-red-500/30 text-red-200";
-      case "PostgreSQL":
+      case "POSTGRESQL":
+        return "bg-green-500/30 text-red-200";
+      case "MYSQL":
         return "bg-red-500/30 text-red-200";
-      case "MySQL":
-        return "bg-red-500/30 text-red-200";
-      case "Oracle":
-        return "bg-red-500/30 text-red-200";
+      case "ORACLE":
+        return "bg-blue-500/30 text-red-200";
       default:
         return "bg-gray-500/30 text-gray-200";
     }
@@ -553,7 +561,7 @@ const ContestPage = () => {
   };
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="min-h-screen text-white w-full">
       {/* Header with logo and contest info */}
       <header className="bg-red-900/30 border-b border-red-500/30 p-4">
         <div className="container mx-auto flex justify-between items-center">
@@ -609,101 +617,125 @@ const ContestPage = () => {
         </div>
       </header>
 
-      <main className="container mx-auto p-4">
-        <Tabs defaultValue="questions" className="w-full">
-          <TabsList className="text-white bg-red-500/20 border border-red-500/30 p-1 mb-6">
-            <TabsTrigger
-              value="questions"
-              className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-            >
-              <FileQuestion className="w-4 h-4 mr-2" />
-              Questions
-            </TabsTrigger>
-            <TabsTrigger
-              value="status"
-              className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              Status
-            </TabsTrigger>
-            <TabsTrigger
-              value="leaderboard"
-              className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              Leaderboard
-            </TabsTrigger>
-            <TabsTrigger
-              value="ddl"
-              className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-            >
-              <Database className="w-4 h-4 mr-2" />
-              DDL Statements
-            </TabsTrigger>
-            <TabsTrigger
-              value="schema"
-              className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              Visualize Schema
-            </TabsTrigger>
-          </TabsList>
+      {loading ? (
+        // Skeleton loading state for main content area
+        <div className="space-y-6">
+          <div className="rounded-lg border border-red-500/30 bg-black/40 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <Skeleton className="h-8 w-64 bg-red-500/20" />
+              <Skeleton className="h-6 w-24 bg-red-500/20" />
+            </div>
+            <Skeleton className="h-32 w-full mt-4 bg-red-500/10" />
+            <div className="mt-6 space-y-4">
+              <Skeleton className="h-24 w-full bg-red-500/10" />
+              <Skeleton className="h-24 w-full bg-red-500/10" />
+            </div>
+            <div className="flex justify-between mt-6">
+              <Skeleton className="h-10 w-24 bg-red-500/20" />
+              <Skeleton className="h-10 w-24 bg-red-500/20" />
+            </div>
+          </div>
+        </div>
+      ) : contestStatus != "upcoming" ? (
+        <main className="container mx-auto p-4">
+          <Tabs defaultValue="questions" className="w-full">
+            <TabsList className="text-white bg-red-500/20 border border-red-500/30 p-1 mb-6">
+              <TabsTrigger
+                value="questions"
+                className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+              >
+                <FileQuestion className="w-4 h-4 mr-2" />
+                Questions
+              </TabsTrigger>
+              <TabsTrigger
+                value="status"
+                className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Status
+              </TabsTrigger>
+              {contestStatus == "ended" && (
+                <TabsTrigger
+                  value="leaderboard"
+                  className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Leaderboard
+                </TabsTrigger>
+              )}
+              <TabsTrigger
+                value="ddl"
+                className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+              >
+                <Database className="w-4 h-4 mr-2" />
+                DDL Statements
+              </TabsTrigger>
+            </TabsList>
+            <QuestionsTab
+              currentQuestion={currentQuestion}
+              questions={questions}
+              setQuestions={setQuestions}
+              getDifficultyStyles={getDifficultyStyles}
+              navigateQuestion={navigateQuestion}
+              contestId={contestId}
+              ddl={{
+                oracle: contestInfo.oracle_ddl,
+                mysql: contestInfo.mysql_ddl,
+                postgresql: contestInfo.postgresql_ddl,
+              }}
+            />
+            <StatusTab
+              contestId={contestId}
+              getDifficultyStyles={getDifficultyStyles}
+            />
+            <Leaderboard contestId={contestId} />
+            <DDLTab
+              ddl={{
+                oracle: contestInfo.oracle_ddl,
+                mysql: contestInfo.mysql_ddl,
+                postgresql: contestInfo.postgresql_ddl,
+              }}
+              contestId={contestId}
+              setDdl={setContestInfo}
+            />
+          </Tabs>
+        </main>
+      ) : (
+        <div className="container mx-auto mt-5 w-full p-4">
+          <div className="rounded-lg border border-red-500/30 bg-black/40 p-8 text-center">
+            <Lock className="w-16 h-16 mx-auto mb-6 text-red-500" />
+            <h2 className="text-2xl font-bold mb-4 text-white">
+              Contest Not Yet Started
+            </h2>
+            <p className="text-gray-300 mb-6 max-w-lg mx-auto">
+              This SQL contest is scheduled to begin soon. Contest materials and
+              questions will be available once the event officially starts.
+            </p>
 
-          {loading ? (
-            // Skeleton loading state for main content area
-            <div className="space-y-6">
-              {/* Question Tab Skeleton */}
-              <div className="rounded-lg border border-red-500/30 bg-black/40 p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <Skeleton className="h-8 w-64 bg-red-500/20" />
-                  <Skeleton className="h-6 w-24 bg-red-500/20" />
-                </div>
-                <Skeleton className="h-32 w-full mt-4 bg-red-500/10" />
-                <div className="mt-6 space-y-4">
-                  <Skeleton className="h-24 w-full bg-red-500/10" />
-                  <Skeleton className="h-24 w-full bg-red-500/10" />
-                </div>
-                <div className="flex justify-between mt-6">
-                  <Skeleton className="h-10 w-24 bg-red-500/20" />
-                  <Skeleton className="h-10 w-24 bg-red-500/20" />
-                </div>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+              <div className="flex items-center text-gray-300">
+                <Calendar className="w-5 h-5 mr-2 text-red-400" />
+                <span>{contestInfo?.startTime?.split("|")[0]}</span>
+              </div>
+              <div className="flex items-center text-gray-300">
+                <Timer className="w-5 h-5 mr-2 text-red-400" />
+                <span>{contestInfo?.startTime?.split("|")[1]}</span>
               </div>
             </div>
-          ) : (
-            // Regular content when loaded
-            <>
-              <QuestionsTab
-                currentQuestion={currentQuestion}
-                questions={questions}
-                setQuestions={setQuestions}
-                getDifficultyStyles={getDifficultyStyles}
-                navigateQuestion={navigateQuestion}
-                contestId={contestId}
-              />
 
-              <StatusTab
-                contestId={contestId}
-                getDifficultyStyles={getDifficultyStyles}
-                loading={loading}
-              />
-
-              <Leaderboard contestId={contestId} />
-
-              <DDLTab
-                ddl={{
-                  oracle: contestInfo.oracle_ddl,
-                  mysql: contestInfo.mysql_ddl,
-                  postgresql: contestInfo.postgresql_ddl,
-                }}
-                contestId={contestId}
-                setDdl={setContestInfo}
-              />
-
-              <VisualSchemaTab schema={{}} />
-            </>
-          )}
-        </Tabs>
-      </main>
+            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg inline-block">
+              <div className="flex items-start">
+                <AlertCircle className="w-5 h-5 mr-2 text-red-400 mt-0.5" />
+                <p className="text-gray-300 text-sm text-left">
+                  Please don't attempt to access contest materials before the
+                  official start time. Early access attempts are monitored and
+                  may result in disqualification.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

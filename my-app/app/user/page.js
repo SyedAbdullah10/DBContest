@@ -8,6 +8,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
 import LoginButton from "../Components/LoginButton";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 // Add keyframes animation at the top of the file
 const pulseRotateAnimation = `
@@ -68,20 +69,58 @@ const loadingAnimation = `
 }
 `;
 
-const InputField = ({ Icon, type, placeholder, value, onChange }) => {
+// const InputField = ({ Icon, type, placeholder, value, onChange }) => {
+//   return (
+//     <div className="w-full">
+//       <div className="flex items-center bg-black/40 backdrop-blur-lg shadow-lg rounded-full p-4 hover:bg-black/50 transition-all border border-red-500/30">
+//         <div className="bg-gradient-to-br from-red-500 to-red-800 rounded-full p-3 flex items-center justify-center shadow-md">
+//           <Icon className="text-white text-xl" />
+//         </div>
+//         <input
+//           type={type}
+//           placeholder={placeholder}
+//           value={value}
+//           onChange={onChange}
+//           className="flex-1 bg-transparent ml-4 p-2 text-white placeholder-white/60 text-lg outline-none"
+//         />
+//       </div>
+//     </div>
+//   );
+// };
+
+const InputField = ({
+  Icon,
+  type,
+  placeholder,
+  value,
+  onChange,
+  isPassword,
+}) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const inputType = isPassword ? (showPassword ? "text" : "password") : type;
+
   return (
     <div className="w-full">
-      <div className="flex items-center bg-black/40 backdrop-blur-lg shadow-lg rounded-full p-4 hover:bg-black/50 transition-all border border-red-500/30">
+      <div className="flex items-center bg-black/40 backdrop-blur-lg shadow-lg rounded-full py-3 px-5 hover:bg-black/50 transition-all border border-red-500/30 relative">
         <div className="bg-gradient-to-br from-red-500 to-red-800 rounded-full p-3 flex items-center justify-center shadow-md">
           <Icon className="text-white text-xl" />
         </div>
         <input
-          type={type}
+          type={inputType}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
           className="flex-1 bg-transparent ml-4 p-2 text-white placeholder-white/60 text-lg outline-none"
         />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-5 text-white/70 hover:text-white transition"
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -291,6 +330,7 @@ const UserLogin = () => {
         }
       }
     } catch (error) {
+      setIsLoggingIn(true);
       console.error("Login error:", error);
       setError("An error occurred during login");
     }
@@ -469,7 +509,7 @@ const UserLogin = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="w-full space-y-6">
-                <InputField
+                {/* <InputField
                   Icon={FaUser}
                   type="text"
                   placeholder="Username"
@@ -482,6 +522,22 @@ const UserLogin = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                /> */}
+                <InputField
+                  Icon={FaUser}
+                  type="text"
+                  placeholder="Username"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                />
+
+                <InputField
+                  Icon={FaLock}
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  isPassword // 👈 this enables the toggle button
                 />
                 <LoginButton onClick={handleSubmit} isLoading={isLoggingIn} />
                 {error && (

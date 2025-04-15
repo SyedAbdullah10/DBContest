@@ -497,6 +497,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 const showContestCreatedToast = () => {
   toast.success(`Contest Created successfully!`, {
@@ -521,6 +523,11 @@ const showErrorToast = (error) => {
 };
 
 const CreateContest = () => {
+    const { data: session, status } = useSession();
+    if (!session || session.user.role !== "admin") {
+      return redirect("/admin");
+    }
+    
   const [startTime, setStartTime] = useState(dayjs());
   const [endTime, setEndTime] = useState(dayjs());
   const [sqlDialect, setSqlDialect] = useState("mysql");

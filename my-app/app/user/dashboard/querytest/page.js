@@ -13,8 +13,9 @@ export default function ExecuteSQL() {
       console.log(query);
       console.log(sql_mode);
       console.log(ddl);
-      
-      const response = await fetch("/api/execute-participant", {
+
+      // const response = await fetch("http://localhost:3000/api/execute-participant", {
+      const response = await fetch("http://localhost:3000/api/execute", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +96,7 @@ export default function ExecuteSQL() {
       {error && (
         <div className="bg-red-900/40 border border-red-500 p-4 rounded-lg mb-6">
           <h3 className="text-red-400 font-bold mb-2">Error</h3>
-          <div className="text-white">{error}</div>
+          {/* <div className="text-white">{error}</div> */}
         </div>
       )}
 
@@ -103,7 +104,7 @@ export default function ExecuteSQL() {
         <div className="bg-black/40 p-4 rounded-lg">
           <h3 className="text-white font-bold mb-2">Result</h3>
 
-          {/* If result is an array (table data) */}
+          {/* If result is an array (table data)
           {Array.isArray(result) && result.length > 0 ? (
             <div className="overflow-auto">
               <table className="w-full border border-red-500/30 text-white">
@@ -134,7 +135,7 @@ export default function ExecuteSQL() {
             <pre className="bg-black/50 p-4 rounded-md overflow-auto text-white font-mono text-sm">
               {JSON.stringify(result, null, 2)}
             </pre>
-          )}
+          )*/}
         </div>
       )}
     </div>

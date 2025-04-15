@@ -19,6 +19,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DashboardCard = ({ Icon, title, description, onClickHandler, goto }) => {
   return (
@@ -36,76 +37,19 @@ const DashboardCard = ({ Icon, title, description, onClickHandler, goto }) => {
   );
 };
 
-const contests = {
-  upcoming: [
-    {
-      id: 1,
-      name: "Spring Coding Challenge",
-      startDate: "April 11, 2025",
-      endDate: "April 15, 2025",
-      startTime: "3:00:00 PM",
-      endTime: "4:00:00 PM",
-    },
-    {
-      id: 2,
-      name: "AI Hackathon",
-      startDate: "April 11, 2025",
-      endDate: "April 15, 2025",
-      startTime: "3:00:00 PM",
-      endTime: "4:00:00 PM",
-    },
-  ],
-  ongoing: [
-    {
-      id: 5,
-      name: "Data Structures Contest",
-      startDate: "April 11, 2025",
-      endDate: "April 15, 2025",
-      startTime: "3:00:00 PM",
-      endTime: "4:00:00 PM",
-    },
-    {
-      id: 6,
-      name: "Web Development Sprint",
-      startDate: "April 11, 2025",
-      endDate: "April 15, 2025",
-      startTime: "3:00:00 PM",
-      endTime: "4:00:00 PM",
-    },
-  ],
-  finished: [
-    {
-      id: 3,
-      name: "Winter Data Science Contest",
-      startDate: "April 11, 2025",
-      endDate: "April 15, 2025",
-      startTime: "3:00:00 PM",
-      endTime: "4:00:00 PM",
-    },
-    {
-      id: 4,
-      name: "Cybersecurity CTF",
-      startDate: "April 11, 2025",
-      endDate: "April 15, 2025",
-      startTime: "3:00:00 PM",
-      endTime: "4:00:00 PM",
-    },
-  ],
-};
+// Skeleton for Contest Card
+const ContestCardSkeleton = () => (
+  <div className="bg-black/50 backdrop-blur-lg p-4 rounded-xl mb-4 border border-red-500/30 shadow-lg">
+    <Skeleton className="h-8 w-3/4 bg-red-500/20 mb-3" />
+    <Skeleton className="h-5 w-1/2 bg-red-500/10 mb-2" />
+    <Skeleton className="h-5 w-2/3 bg-red-500/10" />
+  </div>
+);
 
-const ContestTabs = ({ contests, handleContestCardClick }) => {
+const ContestTabs = ({ contests, handleContestCardClick, loading }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("upcoming");
   const [searchQuery, setSearchQuery] = useState("");
-
-  // const filterContests = (contests) => {
-  //   console.log(contests);
-
-  //   if (searchQuery == "") return;
-  //   return contests[activeTab]?.filter((contest) =>
-  //     contest?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  //   );
-  // };
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-8">
@@ -148,29 +92,39 @@ const ContestTabs = ({ contests, handleContestCardClick }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {activeTab === "upcoming" && (
-          <UpcomingContests
-            contests={contests?.upcoming}
-            router={router}
-            searchQuery={searchQuery}
-            handleContestCardClick={handleContestCardClick}
-          />
-        )}
-        {activeTab === "ongoing" && (
-          <OngoingContests
-            contests={contests?.ongoing}
-            router={router}
-            searchQuery={searchQuery}
-            handleContestCardClick={handleContestCardClick}
-          />
-        )}
-        {activeTab === "finished" && (
-          <FinishedContests
-            contests={contests?.finished}
-            router={router}
-            searchQuery={searchQuery}
-            handleContestCardClick={handleContestCardClick}
-          />
+        {loading ? (
+          // Show skeletons when loading
+          <>
+            <ContestCardSkeleton />
+            <ContestCardSkeleton />
+          </>
+        ) : (
+          <>
+            {activeTab === "upcoming" && (
+              <UpcomingContests
+                contests={contests?.upcoming}
+                router={router}
+                searchQuery={searchQuery}
+                handleContestCardClick={handleContestCardClick}
+              />
+            )}
+            {activeTab === "ongoing" && (
+              <OngoingContests
+                contests={contests?.ongoing}
+                router={router}
+                searchQuery={searchQuery}
+                handleContestCardClick={handleContestCardClick}
+              />
+            )}
+            {activeTab === "finished" && (
+              <FinishedContests
+                contests={contests?.finished}
+                router={router}
+                searchQuery={searchQuery}
+                handleContestCardClick={handleContestCardClick}
+              />
+            )}
+          </>
         )}
       </motion.div>
     </div>
@@ -371,12 +325,14 @@ const FinishedContests = ({
 const AdminDashboard = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      router.push("/admin");
-    },
-  });
+
+  // const { data: session, status } = useSession({
+  //   required: true,
+  //   onUnauthenticated() {
+  //     router.push("/admin");
+  //   },
+  // });
+  const { data: session, status } = useSession();
   const [contests, setContests] = useState({
     ongoing: [],
     upcoming: [],
@@ -386,14 +342,18 @@ const AdminDashboard = () => {
   const [contestPass, setContestPass] = useState("");
   const [selectedContest, setSelectedContest] = useState({});
   const [wrongPassError, setWrongPassError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchContests = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get("/api/dashboard-contests");
         setContests(response.data);
       } catch (error) {
         console.error("Failed to fetch contests:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -430,11 +390,16 @@ const AdminDashboard = () => {
   };
 
   if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (!session || session.user.role !== "admin") {
-    return redirect("/admin");
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-black/90">
+        <Logo />
+        <div className="flex flex-col items-center mt-8 space-y-4 w-full max-w-md">
+          <Skeleton className="h-8 w-3/4 bg-red-500/20" />
+          <Skeleton className="h-6 w-1/2 bg-red-500/10" />
+          <Skeleton className="h-64 w-full bg-red-500/5 rounded-xl" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -452,7 +417,7 @@ const AdminDashboard = () => {
             <div>
               <h1 className="text-white text-4xl font-bold">Admin Dashboard</h1>
               <p className="text-red-400/90 text-lg ml-[0px]">
-                {session.user.name || session.user.username}
+                {session?.user?.name || session?.user?.username}
               </p>
             </div>
           </div>
@@ -461,33 +426,42 @@ const AdminDashboard = () => {
       </div>
 
       {/* Dashboard Content */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
-        <DashboardCard
-          Icon={FaClipboardList}
-          title="Create Contest"
-          description="Set up new database contests for users."
-          onClickHandler={() => {
-            // router.push("/admin/dashboard/createContest");
-          }}
-          goto={"/admin/dashboard/createContest"}
-        />
-        <DashboardCard
-          Icon={FaUsers}
-          title="Manage Users"
-          description="View, add, or remove users from the app."
-          onClickHandler={() => {
-            // router.push("/admin/dashboard/manageUsers");
-          }}
-          goto={"/admin/dashboard/manageUsers"}
-        />
-        <DashboardCard
-          Icon={FaPlusCircle}
-          title="Add Contestants"
-          description="Enroll participants into a contest."
-          onClickHandler={() => {}}
-          goto={"/admin/dashboard/createContest"}
-        />
-      </div>
+      {/* Dashboard Content */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+          <Skeleton className="h-40 bg-red-500/10 rounded-2xl" />
+          <Skeleton className="h-40 bg-red-500/10 rounded-2xl" />
+          <Skeleton className="h-40 bg-red-500/10 rounded-2xl" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+          <DashboardCard
+            Icon={FaClipboardList}
+            title="Create Contest"
+            description="Set up new database contests for users."
+            onClickHandler={() => {
+              // router.push("/admin/dashboard/createContest");
+            }}
+            goto={"/admin/dashboard/createContest"}
+          />
+          <DashboardCard
+            Icon={FaUsers}
+            title="Manage Users"
+            description="View, add, or remove users from the app."
+            onClickHandler={() => {
+              // router.push("/admin/dashboard/manageUsers");
+            }}
+            goto={"/admin/dashboard/manageUsers"}
+          />
+          <DashboardCard
+            Icon={FaPlusCircle}
+            title="Add Contestants"
+            description="Enroll participants into a contest."
+            onClickHandler={() => {}}
+            goto={"/admin/dashboard/createContest"}
+          />
+        </div>
+      )}
       <ContestTabs
         contests={contests}
         handleContestCardClick={handleContestCardClick}

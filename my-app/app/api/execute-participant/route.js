@@ -90,7 +90,7 @@ export async function POST(req) {
     let result;
 
     // ✅ PostgreSQL via Supabase
-    if (sql_mode === "postgres") {
+    if (sql_mode === "postgresql") {
       const { data, error } = await supabase.rpc("sql_exec", { query });
       console.log("Supabase response:", data, error);
 

@@ -183,6 +183,7 @@ import {
   Code,
   Sparkles,
   Clock,
+  ClipboardCopy,
 } from "lucide-react";
 import SqlEditor from "@/app/Components/SQL_Compiler/SqlEditor";
 import axios from "axios";
@@ -203,6 +204,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
+import OneCompiler from "@/app/Components/OneCompiler";
 
 const QuestionsTab = React.memo(
   ({
@@ -212,16 +214,69 @@ const QuestionsTab = React.memo(
     getDifficultyStyles,
     navigateQuestion,
     contestId,
+    ddl,
   }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [showSubmitDialog, setShowSubmitDialog] = useState(false);
-    const [dbType, setDbType] = useState("mysql");
-    const [ddl, setDdl] = useState("");
-    const [dialogError, setDialogError] = useState("");
+    const [dialogError, setDialogError] = useState("mysql");
     const [sqlQuery, setSqlQuery] = useState("");
-    const [sqlMode, setSqlMode] = useState("");
+    const [sqlMode, setSqlMode] = useState("mysql");
     const { data: session, status } = useSession();
+    const [copied, setCopied] = useState(false);
+
+    const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
+
+    const handleCopy = () => {
+      navigator.clipboard.writeText(ddl[sqlMode]).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      });
+    };
+
+    useEffect(() => {
+      // Function to check if DevTools is open
+      const detectDevTools = () => {
+        if (
+          window.outerWidth - window.innerWidth > 160 ||
+          window.outerHeight - window.innerHeight > 160
+        ) {
+          setIsDevToolsOpen(true);
+        } else {
+          setIsDevToolsOpen(false);
+        }
+      };
+
+      // Block keyboard shortcuts
+      const blockShortcuts = (event) => {
+        if (
+          event.key === "F12" || // DevTools
+          (event.ctrlKey &&
+            event.shiftKey &&
+            ["I", "J", "C"].includes(event.key)) || // Ctrl+Shift+I/J/C
+          (event.ctrlKey && ["U", "L"].includes(event.key.toUpperCase())) || // Ctrl+U (View Source), Ctrl+L
+          (event.altKey && ["ArrowLeft", "ArrowRight"].includes(event.key)) // Alt + Left/Right
+        ) {
+          event.preventDefault();
+        }
+      };
+
+      // Prevent right-click
+      const disableRightClick = (event) => event.preventDefault();
+
+      const devToolsCheckInterval = setInterval(detectDevTools, 1000);
+
+      // document.addEventListener("keydown", blockShortcuts);
+      // document.addEventListener("contextmenu", disableRightClick);
+      // window.addEventListener("resize", detectDevTools); // Recheck when resizing
+
+      return () => {
+        document.removeEventListener("keydown", blockShortcuts);
+        document.removeEventListener("contextmenu", disableRightClick);
+        window.removeEventListener("resize", detectDevTools);
+        clearInterval(devToolsCheckInterval);
+      };
+    }, []);
 
     useEffect(() => {
       if (!questions || questions.length === 0 || currentQuestion < 1) return;
@@ -274,7 +329,15 @@ const QuestionsTab = React.memo(
           user_answer: sqlQuery,
           ddl: false,
         };
-        
+
+        // user_id,
+        // contest_id,
+        // question_id,
+        // submitted_at,
+        // sql_mode,
+        // user_answer,
+        // ddl,
+
         console.log(submissionData);
 
         const response = await axios.post("/api/evaluate", submissionData);
@@ -353,10 +416,33 @@ const QuestionsTab = React.memo(
                 </p>
               </div>
             </div>
-            <div className="bg-red-900/50 w-full h-1 my-5"></div>
-            <h4 className="text-lg font-semibold mb-2 text-red-300">
-              Your Solution
-            </h4>
+            <div className="bg-red-900/50 w-full h-1 my-8"></div>
+            <div className="text-lg font-semibold flex gap-3 text-red-300 mb-4">
+              <span>Your Solution</span>
+              <Select
+                onValueChange={setSqlMode}
+                value={sqlMode}
+                defaultValue="Select DDL Type"
+              >
+                <SelectTrigger className="w-56 mb-3 bg-black/40 backdrop-blur-lg text-white border focus:border-red-500/50 border-red-500/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black/40 backdrop-blur-lg text-white border border-red-500/20">
+                  <SelectItem value="oracle">Oracle SQL</SelectItem>
+                  <SelectItem value="mysql">MySQL</SelectItem>
+                  <SelectItem value="postgresql">PostgreSQL</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={handleCopy}
+                variant="outline"
+                size="sm"
+                className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white transition w-max"
+              >
+                <ClipboardCopy className="w-4 h-4 mr-1" />
+                {copied ? "Copied!" : `Copy ${sqlMode} DDL`}
+              </Button>
+            </div>
             {/* <div className="mb-4">
               <SqlEditor
                 query={sqlQuery}
@@ -366,14 +452,15 @@ const QuestionsTab = React.memo(
               />
             </div> */}
 
+            {isDevToolsOpen ? (
+              <h1 className="text-red-600 text-2xl font-bold">
+                DevTools detected!!
+              </h1>
+            ) : (
+              <OneCompiler />
+            )}
+
             <div className="flex justify-end space-x-4 mt-6">
-              <Button
-                variant="outline"
-                onClick={handleRun}
-                className="hover:border-red-500/50 text-black hover:bg-red-900/30 hover:text-white"
-              >
-                Run Query
-              </Button>
               <Button
                 onClick={openSubmitDialog}
                 disabled={isSubmitting}
@@ -417,7 +504,7 @@ const QuestionsTab = React.memo(
                   <SelectContent className="bg-black/90 border-red-500/30 text-white">
                     <SelectItem value="mysql">MySQL</SelectItem>
                     <SelectItem value="postgresql">PostgreSQL</SelectItem>
-                    <SelectItem value="sqlite">SQLite</SelectItem>
+                    <SelectItem value="oracle">OracleSQL</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -440,7 +527,7 @@ const QuestionsTab = React.memo(
               <Button
                 variant="outline"
                 onClick={() => setShowSubmitDialog(false)}
-                className="border-red-500/30 hover:bg-red-900/20 text-white"
+                className="border-red-500/30 hover:bg-red-900/20 text-black hover:text-white"
               >
                 Cancel
               </Button>

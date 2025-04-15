@@ -7,7 +7,7 @@ const OneCompiler = () => {
   const compilerURL = "https://onecompiler.com/embed/mysql";
 
   return (
-    <div className="h-screen w-full flex justify-center items-center">
+    <div className=" w-full flex justify-center items-center">
       <iframe
         ref={iframeRef}
         src={compilerURL}
