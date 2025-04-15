@@ -151,9 +151,41 @@ const generateParticipantsCredentials = () => {
 }
 
 query = "hello world;";
-console.log(query.split(";")[1] != "");
+
+if (query[query.length - 1] == ';') {
+  query = query.substr(0, query.length - 1)
+}
+
+console.log(query);
+
+
+let a = [];
+if (Array.isArray(query)) console.log("True");
+
+let ob = [
+  {
+    q:"q1",
+    n:1
+  },
+  {
+    q:"q2",
+    n:1
+  },
+  {
+    q:"q3",
+    n:1
+  }
+]
+
+let maxi = 0;
+for (let i = 0; i < ob.length; i++) {
+  maxi = Math.max(parseInt(ob[i].q.substring(1), 10), maxi);
+}
+
+console.log(maxi);
 
 
 // const uniqueNames = new Set(names);
 
 // console.log("Unique count:", uniqueNames.size == names.length); // should print 42
+

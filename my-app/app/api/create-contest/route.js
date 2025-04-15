@@ -1,5 +1,6 @@
 // File: app/api/contests/route.js
 import supabase from "@/supabaseClient";
+import axios from "axios";
 // import pool from "@/mysqlpool";
 // import oracle_pool from "@/oracleDbPool";
 import { NextResponse } from "next/server";
@@ -38,6 +39,48 @@ export async function POST(request) {
         },
         { status: 500 }
       );
+    }
+
+    // create postgres ddl
+    try {
+      const res = await axios.post("http://localhost:3000/api/execute", {
+        query: ddlContent.postgresql,
+        sql_mode: "postgres",
+        ddl: true,
+      });
+    } catch (err) {
+      return NextResponse.json({
+        success: false,
+        message: "Failed to execute PostgreSQL Queries!",
+      });
+    }
+
+    // create mysql ddl
+    try {
+      const res = await axios.post("http://localhost:3000/api/execute", {
+        query: ddlContent.mysql,
+        sql_mode: "mysql",
+        ddl: true,
+      });
+    } catch (err) {
+      return NextResponse.json({
+        success: false,
+        message: "Failed to execute MySQL Queries!",
+      });
+    }
+
+    // create mysql ddl
+    try {
+      const res = await axios.post("http://localhost:3000/api/execute", {
+        query: ddlContent.oraclesql,
+        sql_mode: "oracle",
+        ddl: true,
+      });
+    } catch (err) {
+      return NextResponse.json({
+        success: false,
+        message: "Failed to execute Oracle Queries!",
+      });
     }
 
     // if (ddlContent.postgresql) {

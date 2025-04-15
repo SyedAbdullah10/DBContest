@@ -475,7 +475,7 @@
 
 // export default CreateContest;
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar as CalendarIcon, X } from "lucide-react";
@@ -499,6 +499,7 @@ import {
 } from "@/components/ui/select";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const showContestCreatedToast = () => {
   toast.success(`Contest Created successfully!`, {
@@ -523,11 +524,16 @@ const showErrorToast = (error) => {
 };
 
 const CreateContest = () => {
-    const { data: session, status } = useSession();
-    if (!session || session.user.role !== "admin") {
-      return redirect("/admin");
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  useEffect(() => {
+    console.log(session);
+    console.log("Redirecting. . .");
+    if (!session || session?.user?.role !== "admin") {
+      router.push("/admin");
     }
-    
+  }, []);
+
   const [startTime, setStartTime] = useState(dayjs());
   const [endTime, setEndTime] = useState(dayjs());
   const [sqlDialect, setSqlDialect] = useState("mysql");
@@ -590,6 +596,12 @@ const CreateContest = () => {
 
       for (let i = 0; i < questions.length; i++) {
         questions[i]["number"] = "Q" + (i + 1).toString();
+      }
+
+      for (let i = 0; i < questions.length; i++) {
+        if (questions[i].answer == "") {
+          questions[i].answer = [];
+        }
       }
 
       const contestData = {

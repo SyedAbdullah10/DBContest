@@ -12,6 +12,8 @@ export async function POST(req) {
     let result;
 
     let queries = query.split(";");
+    console.log(queries);
+    
 
     // ✅ PostgreSQL via Supabase
     if (sql_mode === "postgres") {
@@ -37,7 +39,7 @@ export async function POST(req) {
         if (ddl) {
           result = [];
           for (let i = 0; i < queries.length; i++) {
-            const singleQuery = queries[i];
+            let singleQuery = queries[i];
             if (singleQuery != "") {
               const res = await connection.execute(singleQuery);
               result.push(res);
@@ -103,14 +105,13 @@ export async function POST(req) {
 
           result = [];
           for (let i = 0; i < queries.length; i++) {
-            const singleQuery = queries[i];
+            let singleQuery = queries[i];
             if (singleQuery != "") {
               console.log(singleQuery);
 
               singleQuery = singleQuery.trim();
-              const resultSet = await connection.execute(singleQuery, []); // <-- 🔥 FIX HERE
+              await connection.execute(singleQuery, []); // <-- 🔥 FIX HERE
               await connection.commit(); // 🔒 Persist the data
-              result.push(resultSet.rows); // SELECT returns rows
             }
           }
         }
@@ -143,4 +144,31 @@ export async function POST(req) {
       { status: 400 }
     );
   }
+
+  /*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  */
+
 }

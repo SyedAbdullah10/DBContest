@@ -527,6 +527,7 @@ import {
   showErrorToast,
   showUpdatedToast,
 } from "@/app/Components/Dumped/utils/toast";
+import supabase from "@/supabaseClient";
 
 const Leaderboard = ({ contestId }) => {
   const [leaderboardData, setLeaderboardData] = useState(null);
@@ -554,6 +555,22 @@ const Leaderboard = ({ contestId }) => {
     if (contestId) {
       fetchLeaderboardData();
     }
+    
+    const channel = supabase
+      .channel("table-updates")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Submissions" },
+        (payload) => {
+          console.log("Realtime payload:", payload);
+          fetchLeaderboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [contestId]);
 
   const handleCellClick = (participant, questionNumber) => {
@@ -992,7 +1009,7 @@ const Leaderboard = ({ contestId }) => {
                               onClick={() =>
                                 handleSubmissionStatus(
                                   submission.submission_id,
-                                  "Accept"
+                                  "Accepted"
                                 )
                               }
                               disabled={acceptLoading}

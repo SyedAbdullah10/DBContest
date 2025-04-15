@@ -56,15 +56,17 @@ export default function Home() {
   //   };
   // }, []);
 
-  const { data: session, data } = useSession();
+  // const { data: session, data } = useSession();
 
-  if (!session) {
-    return redirect("/user");
-  }
+  // if (!session) {
+  //   return redirect("/user");
+  // }
 
-  if (session?.user?.role === "admin") {
-    return redirect("/admin");
-  }
+  // if (session?.user?.role === "admin") {
+  //   return redirect("/admin");
+  // }
 
-  return redirect("/user");
+  // return redirect("/user");
+
+  return <>Hello World</>;
 }

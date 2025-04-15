@@ -97,7 +97,7 @@
 //   if (!session || session.user.role !== "admin") {
 //     return redirect("/admin");
 //   }
-  
+
 //   const [users, setUsers] = useState([]);
 //   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 //   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -444,7 +444,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 // Function to show toast for adding a user
 const showAddToast = (duplicates) => {
@@ -532,10 +532,15 @@ const TableRowSkeleton = () => {
 
 const ManageUsers = () => {
   const { data: session, status } = useSession();
-  if (!session || session.user.role !== "admin") {
-    return redirect("/admin");
-  }
-  
+  const router = useRouter();
+  useEffect(() => {
+    console.log(session);
+    console.log("Redirecting. . .");
+    if (!session || session?.user?.role !== "admin") {
+      router.push("/admin");
+    }
+  }, []);
+
   // States
   const [users, setUsers] = useState([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -694,9 +699,9 @@ const ManageUsers = () => {
 
   // Generate skeleton rows for loading state
   const renderSkeletonRows = () => {
-    return Array(5).fill(0).map((_, index) => (
-      <TableRowSkeleton key={`skeleton-${index}`} />
-    ));
+    return Array(5)
+      .fill(0)
+      .map((_, index) => <TableRowSkeleton key={`skeleton-${index}`} />);
   };
 
   return (
@@ -741,42 +746,42 @@ const ManageUsers = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                renderSkeletonRows()
-              ) : (
-                filteredUsers.map((user, index) => (
-                  <TableRow
-                    key={user.id}
-                    className={`${
-                      index % 2 === 0 ? "bg-black/40" : "bg-black/20"
-                    } transition hover:bg-black/60`}
-                  >
-                    <TableCell className="text-white px-6 py-4">
-                      {user.username}
-                    </TableCell>
-                    <TableCell className="text-white px-6 py-4">
-                      {user.name}
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-right">
-                      <div className="flex justify-end space-x-3">
-                        <Button
-                          variant="destructive"
-                          className="px-4 py-2 rounded-lg transition hover:bg-red-700"
-                          onClick={() => handleRemove(user.id)}
-                        >
-                          Remove
-                        </Button>
-                        <Button
-                          className="bg-transparent text-white border border-red-500 px-4 py-2 rounded-lg transition hover:bg-red-500 hover:border-transparent"
-                          onClick={() => openEditDialog(user.username, user.id)}
-                        >
-                          Edit
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+              {isLoading
+                ? renderSkeletonRows()
+                : filteredUsers.map((user, index) => (
+                    <TableRow
+                      key={user.id}
+                      className={`${
+                        index % 2 === 0 ? "bg-black/40" : "bg-black/20"
+                      } transition hover:bg-black/60`}
+                    >
+                      <TableCell className="text-white px-6 py-4">
+                        {user.username}
+                      </TableCell>
+                      <TableCell className="text-white px-6 py-4">
+                        {user.name}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-right">
+                        <div className="flex justify-end space-x-3">
+                          <Button
+                            variant="destructive"
+                            className="px-4 py-2 rounded-lg transition hover:bg-red-700"
+                            onClick={() => handleRemove(user.id)}
+                          >
+                            Remove
+                          </Button>
+                          <Button
+                            className="bg-transparent text-white border border-red-500 px-4 py-2 rounded-lg transition hover:bg-red-500 hover:border-transparent"
+                            onClick={() =>
+                              openEditDialog(user.username, user.id)
+                            }
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
             </TableBody>
           </Table>
         </div>

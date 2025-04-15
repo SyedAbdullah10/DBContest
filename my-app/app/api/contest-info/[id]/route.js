@@ -23,10 +23,12 @@ export async function GET(req) {
   const { data: questions, error: questionsError } = await supabase
     .from("Questions")
     .select(
-      "id, questionTitle, questionDescription, difficulty, Answer, points"
+      "id, questionTitle, questionDescription, difficulty, Answer, points, questionNumber"
     )
     .eq("ContestId", contestId)
     .order("questionNumber");
+
+  console.log(questions);
 
   if (questionsError) {
     return NextResponse.json(

@@ -504,7 +504,7 @@ import QuestionsTab from "./Components/QuestionsTab";
 import DDLTab from "./Components/DDLTab";
 import VisualSchemaTab from "./Components/VisualSchemaTab";
 import Leaderboard from "./Components/Leaderboard";
-import { redirect, useParams } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
@@ -521,9 +521,14 @@ import { useSession } from "next-auth/react";
 
 const ContestPage = () => {
   const { data: session, status } = useSession();
-  if (!session || session.user.role !== "admin") {
-    return redirect("/admin");
-  }
+  const router = useRouter(); 
+  useEffect(() => {
+    console.log(session);
+    console.log("Redirecting. . .");
+    if (!session || session?.user?.role !== "admin") {
+      router.push("/admin");
+    }
+  }, []);
 
   const [timeLeft, setTimeLeft] = useState({
     hours: 0,

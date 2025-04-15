@@ -5,7 +5,8 @@ import { NextResponse } from "next/server";
 export async function GET(request, { params }) {
   try {
     const { contestId } = await params;
-
+    console.log("ContestID: ", contestId);
+    
     // Validate contestId
     if (!contestId) {
       return NextResponse.json(
@@ -20,21 +21,25 @@ export async function GET(request, { params }) {
       .select("id, name, startTime, endTime")
       .eq("id", contestId)
       .single();
-
-    if (contestError || !contestData) {
-      return NextResponse.json({ error: "Contest not found" }, { status: 404 });
-    }
-
-    // 2. Get all questions for this contest
-    const { data: questions, error: questionsError } = await supabase
+    
+      console.log("Contest Data, ", contestData);
+      
+      
+      if (contestError || !contestData) {
+        return NextResponse.json({ error: "Contest not found" }, { status: 404 });
+      }
+      
+      // 2. Get all questions for this contest
+      const { data: questions, error: questionsError } = await supabase
       .from("Questions")
       .select("id, questionNumber, questionTitle, points, difficulty")
       .eq("ContestId", contestId)
       .order("questionNumber", { ascending: true });
-
-    if (questionsError) {
-      return NextResponse.json(
-        { error: "Failed to fetch contest questions" },
+      
+      console.log("Questions, ", questions);
+      if (questionsError) {
+        return NextResponse.json(
+          { error: "Failed to fetch contest questions" },
         { status: 500 }
       );
     }
@@ -45,9 +50,9 @@ export async function GET(request, { params }) {
         contest_id_input: contestId,
       });
 
-    console.log(allSubmissions);
+    console.log("All submissions, ", allSubmissions);
 
-    allSubmissions = allSubmissions.map((s) => {
+    allSubmissions = allSubmissions?.map((s) => {
       return {
         submission_id: s.submission_id,
         question_id: s.question_id,
@@ -74,7 +79,7 @@ export async function GET(request, { params }) {
       );
     }
 
-    allSubmissions.map((s) => {
+    allSubmissions?.map((s) => {
       s.submitted_at = s.submitted_at.split("|").join("");
       return;
     });
@@ -84,7 +89,7 @@ export async function GET(request, { params }) {
     const firstSolvedMap = new Map();
 
     // Initialize the map of users and their submissions
-    allSubmissions.forEach((submission) => {
+    allSubmissions?.forEach((submission) => {
       const userId = submission.user_id;
       const questionId = submission.question_id;
       const user = submission.Users;

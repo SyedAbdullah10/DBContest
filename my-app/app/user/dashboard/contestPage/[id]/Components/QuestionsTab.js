@@ -228,7 +228,7 @@ const QuestionsTab = React.memo(
     const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
 
     const handleCopy = () => {
-      navigator.clipboard.writeText(ddl[sqlMode]).then(() => {
+      navigator?.clipboard?.writeText(ddl[sqlMode]).then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
       });
@@ -320,13 +320,18 @@ const QuestionsTab = React.memo(
 
         const formattedSubmittedAt = `${datePart} | ${timePart}`;
 
+        let updatedSqlQuery = sqlQuery;
+        if (updatedSqlQuery[updatedSqlQuery?.length - 1] == ";") {
+          updatedSqlQuery = updatedSqlQuery?.substr(0, updatedSqlQuery?.length - 1);
+        }
+
         const submissionData = {
           user_id: session.user.id,
           contest_id: contestId,
           question_id: questions[currentQuestion - 1]?.id,
           submitted_at: formattedSubmittedAt,
           sql_mode: sqlMode,
-          user_answer: sqlQuery,
+          user_answer: updatedSqlQuery,
           ddl: false,
         };
 
