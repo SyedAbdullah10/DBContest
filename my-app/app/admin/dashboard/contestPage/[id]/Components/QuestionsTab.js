@@ -286,9 +286,9 @@ const QuestionsTab = React.memo(
               )}`}
             >
               {questions[currentQuestion - 1]?.difficulty
-                .charAt(0)
-                .toUpperCase() +
-                questions[currentQuestion - 1]?.difficulty.slice(1)}
+                ?.charAt(0)
+                ?.toUpperCase() +
+                questions[currentQuestion - 1]?.difficulty?.slice(1) || "None"}
             </span>
           </div>
         </div>

@@ -17,7 +17,7 @@ export async function POST(req, { params }) {
 
   try {
     const { data, error } = await supabase
-      .from("Submissions") // Replace with your actual table name
+      .from("Submissions") 
       .update({ status })
       .eq("submission_id", submission_id)
       .single();

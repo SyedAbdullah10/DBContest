@@ -1,23 +1,8 @@
-import bcrypt from "bcrypt"; // or import bcrypt from "bcrypt";
-import { createClient } from "@supabase/supabase-js";
+import bcrypt from "bcrypt"; // or import bcrypt from "bcrypt"
+import supabase from "@/supabaseClient";
 import dotenv from "dotenv";
 
 dotenv.config({ path: ".env.local" });
-
-// ✅ Ensure environment variables are loaded
-if (
-  !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  !process.env.SUPABASE_SERVICE_ROLE_KEY
-) {
-  throw new Error(
-    "NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing!"
-  );
-}
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
 
 async function addUserToSupabase(username, password, name, role) {
   const saltRounds = 10; // Recommended salt rounds for security

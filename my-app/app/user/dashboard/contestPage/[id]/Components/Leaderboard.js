@@ -14,6 +14,7 @@ import {
   XCircle,
   UserCircle,
   CheckSquare,
+  Loader2,
 } from "lucide-react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,10 +23,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-toastify";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   showErrorToast,
   showUpdatedToast,
@@ -38,6 +38,7 @@ const Leaderboard = ({ contestId }) => {
   const [selectedSubmissions, setSelectedSubmissions] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [acceptLoading, setAcceptLoading] = useState(false);
+  const [rejectLoading, setRejectLoading] = useState(false);
 
   useEffect(() => {
     const fetchLeaderboardData = async () => {
@@ -77,13 +78,15 @@ const Leaderboard = ({ contestId }) => {
     }
   };
 
-  const handleAcceptSubmission = async (submission_id) => {
+  const handleSubmissionStatus = async (submission_id, status) => {
     if (!selectedSubmissions) return;
 
     setAcceptLoading(true);
     try {
       // Call the correct API route with submission_id in the URL
-      await axios.post(`/api/submission/${submission_id}/accept`);
+      await axios.post(`/api/submission/${submission_id}/status`, {
+        status,
+      });
 
       showUpdatedToast();
       // Optionally refresh leaderboard
@@ -100,15 +103,95 @@ const Leaderboard = ({ contestId }) => {
     }
   };
 
-  if (loading)
+  // Loading skeleton UI
+  if (loading) {
     return (
       <TabsContent value="leaderboard">
-        <div className="text-white text-center py-8">
-          Loading leaderboard...
-        </div>
-        ); if (error) return{" "}
-        <div className="text-red-500 text-center py-8">{error}</div>; if
-        (!leaderboardData) return (
+        <Card className="bg-black/40 border border-red-600/40 relative w-full shadow-lg px-5 pb-5">
+          <CardContent className="p-6 flex flex-col items-center">
+            <div className="flex justify-center items-center mb-4 w-full">
+              <Skeleton className="h-7 w-64 bg-red-900/20" />
+            </div>
+
+            <div className="w-full overflow-x-auto rounded-lg border border-red-500/30">
+              <Table className="w-full border-collapse">
+                <TableHeader className="bg-red-900/20">
+                  <TableRow className="border-b border-red-500/30 hover:bg-transparent">
+                    <TableHead className="border border-red-900/50 p-2 text-left font-medium">
+                      <Skeleton className="h-6 w-12 bg-red-900/30" />
+                    </TableHead>
+                    <TableHead className="border border-red-900/50 p-2 text-left font-medium">
+                      <Skeleton className="h-6 w-24 bg-red-900/30" />
+                    </TableHead>
+                    <TableHead className="border border-red-900/50 p-2 text-center font-medium">
+                      <Skeleton className="h-6 w-16 bg-red-900/30 mx-auto" />
+                    </TableHead>
+                    <TableHead className="border border-red-900/50 p-2 text-center font-medium">
+                      <Skeleton className="h-6 w-16 bg-red-900/30 mx-auto" />
+                    </TableHead>
+                    {[1, 2, 3, 4].map((i) => (
+                      <TableHead
+                        key={i}
+                        className="border border-red-900/50 p-2 text-center font-medium"
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          <Skeleton className="h-5 w-5 bg-red-900/30" />
+                          <Skeleton className="h-4 w-12 bg-red-900/30" />
+                        </div>
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                  {Array(5)
+                    .fill(0)
+                    .map((_, idx) => (
+                      <TableRow key={idx} className={idx % 2 === 0 ? "" : ""}>
+                        <TableCell className="border border-red-900/30 p-2 text-center">
+                          <Skeleton className="h-6 w-8 bg-red-900/20 mx-auto" />
+                        </TableCell>
+                        <TableCell className="border border-red-900/30 p-2">
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="h-6 w-6 rounded-full bg-red-900/20" />
+                            <Skeleton className="h-6 w-28 bg-red-900/20" />
+                          </div>
+                        </TableCell>
+                        <TableCell className="border border-red-900/30 p-2 text-center">
+                          <Skeleton className="h-6 w-10 bg-red-900/20 mx-auto" />
+                        </TableCell>
+                        <TableCell className="border border-red-900/30 p-2 text-center">
+                          <Skeleton className="h-6 w-10 bg-red-900/20 mx-auto" />
+                        </TableCell>
+                        {[1, 2, 3, 4].map((i) => (
+                          <TableCell
+                            key={`${idx}-${i}`}
+                            className="border border-red-900/30 p-2 text-center"
+                          >
+                            <Skeleton className="h-6 w-14 bg-red-900/20 mx-auto" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    );
+  }
+
+  if (error)
+    return (
+      <TabsContent value="leaderboard">
+        <div className="text-red-500 text-center py-8">{error}</div>
+      </TabsContent>
+    );
+
+  if (!leaderboardData)
+    return (
+      <TabsContent value="leaderboard">
         <div className="text-white text-center py-8">
           No leaderboard data available
         </div>
@@ -208,12 +291,10 @@ const Leaderboard = ({ contestId }) => {
                       {participant.penalty}
                     </TableCell>
 
-                    {problems.map((problem, index) => {
+                    {problems.map((problem) => {
                       const questionData = participant.questions.find(
                         (q) => q.questionNumber === problem.id
                       );
-
-                      console.log(questionData);
 
                       // Determine the time to display and the status
                       let timeDisplay = "";
@@ -232,14 +313,7 @@ const Leaderboard = ({ contestId }) => {
                           timeDisplay = timeMatch ? timeMatch[0] : "";
 
                           // Count wrong submissions
-                          const wrongSubmissions =
-                            // questionData.submissions.filter(
-                            //   (s) =>
-                            //     s.status === "Wrong Answer" &&
-                            //     new Date(s.submittedAt) <
-                            //       new Date(acceptedSubmission.submittedAt)
-                            // ).length;
-                            questionData.wrongAnswers;
+                          const wrongSubmissions = questionData.wrongAnswers;
 
                           if (wrongSubmissions > 0) {
                             timeDisplay += ` | (-${wrongSubmissions})`;
@@ -251,11 +325,7 @@ const Leaderboard = ({ contestId }) => {
                           }
                         } else {
                           // If there are only wrong submissions
-                          const wrongCount =
-                            // questionData.submissions.filter(
-                            //   (s) => s.status === "Wrong Answer"
-                            // ).length;
-                            questionData.wrongAnswers;
+                          const wrongCount = questionData.wrongAnswers;
 
                           if (wrongCount > 0) {
                             timeDisplay = `(-${wrongCount})`;
@@ -336,6 +406,9 @@ const Leaderboard = ({ contestId }) => {
                     <TableHead className="text-white font-medium">
                       Solution
                     </TableHead>
+                    <TableHead className="text-white font-medium">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -370,9 +443,6 @@ const Leaderboard = ({ contestId }) => {
                         }`}
                       >
                         <TableCell className="text-gray-300 text-sm">
-                          {/* {new Date(
-                            
-                          ).toLocaleString()} */}
                           {submission.submittedAt.split("|").join("\n")}
                         </TableCell>
                         <TableCell>
@@ -417,6 +487,40 @@ const Leaderboard = ({ contestId }) => {
                             </pre>
                           </div>
                         </TableCell>
+                        <TableCell>
+                          {submission.status === "Wrong Answer" && (
+                            <Button
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 transition-all duration-200 hover:shadow-lg"
+                              onClick={() =>
+                                handleSubmissionStatus(
+                                  submission.submission_id,
+                                  "Accept"
+                                )
+                              }
+                              disabled={acceptLoading}
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                              Accept
+                            </Button>
+                          )}
+                          {submission.status === "Accepted" && (
+                            <Button
+                              size="sm"
+                              className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1 transition-all duration-200 hover:shadow-lg"
+                              onClick={() =>
+                                handleSubmissionStatus(
+                                  submission.submission_id,
+                                  "Wrong Answer"
+                                )
+                              }
+                              disabled={rejectLoading}
+                            >
+                              <XCircle className="w-4 h-4" />
+                              Reject
+                            </Button>
+                          )}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -434,7 +538,7 @@ const Leaderboard = ({ contestId }) => {
               <XCircle className="w-4 h-4 mr-2" />
               Close
             </Button>
-            {/* {selectedSubmissions &&
+            {selectedSubmissions &&
               selectedSubmissions.submissions.some(
                 (s) => s.status === "Wrong Answer"
               ) && (
@@ -445,7 +549,7 @@ const Leaderboard = ({ contestId }) => {
                   <CheckSquare className="w-4 h-4 mr-2" />
                   Review All
                 </Button>
-              )} */}
+              )}
           </div>
         </DialogContent>
       </Dialog>

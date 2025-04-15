@@ -3,21 +3,25 @@ import { useState } from "react";
 
 export default function ExecuteSQL() {
   const [query, setQuery] = useState("");
-  const [dbType, setDbType] = useState("postgres");
+  const [sql_mode, setsql_mode] = useState("postgres");
   const [ddl, setDdl] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
   const handleExecuteQuery = async () => {
     try {
-      const response = await fetch("/api/execute", {
+      console.log(query);
+      console.log(sql_mode);
+      console.log(ddl);
+      
+      const response = await fetch("/api/execute-participant", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           query,
-          dbType,
+          sql_mode,
           ddl,
         }),
       });
@@ -57,8 +61,8 @@ export default function ExecuteSQL() {
           <div>
             <label className="block text-white mb-2">Database Type</label>
             <select
-              value={dbType}
-              onChange={(e) => setDbType(e.target.value)}
+              value={sql_mode}
+              onChange={(e) => setsql_mode(e.target.value)}
               className="p-2 bg-black/50 border border-red-500/30 rounded-md text-white"
             >
               <option value="postgres">PostgreSQL (Supabase)</option>

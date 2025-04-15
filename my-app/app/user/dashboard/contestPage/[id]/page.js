@@ -2,14 +2,33 @@
 
 // import React, { useState, useEffect, useRef } from "react";
 // import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { Clock, FileQuestion, Activity, Database, Eye } from "lucide-react";
+// import {
+//   Clock,
+//   FileQuestion,
+//   Activity,
+//   Database,
+//   Eye,
+//   Edit,
+//   X,
+// } from "lucide-react";
 // import Logo from "@/app/Components/Logo";
 // import QuestionsTab from "./Components/QuestionsTab";
 // import DDLTab from "./Components/DDLTab";
 // import VisualSchemaTab from "./Components/VisualSchemaTab";
 // import Leaderboard from "./Components/Leaderboard";
+// import StatusTab from "./Components/StatusTab";
 // import { useParams } from "next/navigation";
 // import axios from "axios";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogFooter,
+// } from "@/components/ui/dialog";
+// import { Input } from "@/components/ui/input";
+// import { showTimerUpdatedToast } from "@/app/Components/Dumped/utils/toast";
 
 // const ContestPage = () => {
 //   const [timeLeft, setTimeLeft] = useState({
@@ -20,39 +39,36 @@
 //   const [currentQuestion, setCurrentQuestion] = useState(1);
 //   const [contestInfo, setContestInfo] = useState({});
 //   const params = useParams(); // returns an object of dynamic params
-//   const [contestId, setContesId] = useState(params.id);
-//   const [ongoing, setOngoing] = useState(false);
+//   const [contestId, setContestId] = useState(params.id);
+//   const [contestStatus, setContestStatus] = useState("upcoming"); // upcoming, ongoing, ended
 
-//   // console.log(params);
+//   // States for timer edit dialog
+//   const [showEditDialog, setShowEditDialog] = useState(false);
+//   const [isSubmitting, setIsSubmitting] = useState(false);
 
 //   // Mock questions for the contest
-//   const [questions, setQuestions] = useState([
-//     {
-//       id: 1,
-//       title: "Find all users who made a purchase in the last 30 days",
-//       description:
-//         "Write a SQL query to retrieve all users who made at least one purchase in the last 30 days. Include their user ID, name, email, and total purchase amount.",
-//       difficulty: "Easy",
-//       asnwer: "C1 | C2 | C3",
-//       points: 10,
-//     },
-//     {
-//       id: 2,
-//       title: "Calculate average order value by category",
-//       description:
-//         "Write a SQL query to calculate the average order value grouped by product category. Sort the results by average order value in descending order.",
-//       difficulty: "Medium",
-//       points: 20,
-//     },
-//     {
-//       id: 3,
-//       title: "Find products with inventory anomalies",
-//       description:
-//         "Write a SQL query to identify products where the current inventory count doesn't match the calculated inventory based on purchase and sales records.",
-//       difficulty: "Hard",
-//       points: 30,
-//     },
-//   ]);
+//   const [questions, setQuestions] = useState([]);
+
+//   const parseDateTime = (datetimeStr) => {
+//     // Split "Month Date, Year | HH:MM:SS AM/PM"
+//     if (!datetimeStr) return new Date();
+//     const [datePart, timePart] = datetimeStr.split(" | ");
+//     // Combine and parse
+//     return new Date(`${datePart} ${timePart}`);
+//   };
+
+//   const formatDateTimeForInput = (dateObj) => {
+//     if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj)) return "";
+
+//     // Format date for datetime-local input (YYYY-MM-DDTHH:MM)
+//     const year = dateObj.getFullYear();
+//     const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+//     const day = String(dateObj.getDate()).padStart(2, "0");
+//     const hours = String(dateObj.getHours()).padStart(2, "0");
+//     const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+
+//     return `${year}-${month}-${day}T${hours}:${minutes}`;
+//   };
 
 //   useEffect(() => {
 //     const fetchContestData = async () => {
@@ -66,21 +82,19 @@
 //         console.log(contestInfo);
 //         console.log(questions);
 
-//         const parseDateTime = (datetimeStr) => {
-//           // Split "Month Date, Year | HH:MM:SS AM/PM"
-//           const [datePart, timePart] = datetimeStr.split(" | ");
-//           // Combine and parse
-//           return new Date(`${datePart} ${timePart}`);
-//         };
-
 //         const start = parseDateTime(data.contest.startTime);
 //         const end = parseDateTime(data.contest.endTime);
 //         // console.log(start, end);
 
 //         const now = new Date();
 
-//         if (now >= start && now <= end) {
-//           setOngoing(true);
+//         // Set contest status
+//         if (now < start) {
+//           setContestStatus("upcoming");
+//         } else if (now >= start && now <= end) {
+//           setContestStatus("ongoing");
+//         } else {
+//           setContestStatus("ended");
 //         }
 
 //         const diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
@@ -97,7 +111,7 @@
 //     };
 
 //     fetchContestData();
-//   }, []);
+//   }, [contestId]);
 
 //   // Timer countdown effect
 //   useEffect(() => {
@@ -105,6 +119,9 @@
 //       setTimeLeft((prev) => {
 //         if (prev.hours === 0 && prev.minutes === 0 && prev.seconds === 0) {
 //           clearInterval(timer);
+//           if (contestStatus === "ongoing") {
+//             setContestStatus("ended");
+//           }
 //           return prev;
 //         }
 
@@ -127,7 +144,7 @@
 //     }, 1000);
 
 //     return () => clearInterval(timer);
-//   }, [timeLeft]);
+//   }, [timeLeft, contestStatus]);
 
 //   // Format time with leading zeros
 //   const formatTime = (val) => val.toString().padStart(2, "0");
@@ -143,7 +160,7 @@
 //   // Get difficulty styling
 //   const getDifficultyStyles = (difficulty) => {
 //     // difficulty[0] -= 32;
-//     difficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+//     difficulty = difficulty?.charAt(0).toUpperCase() + difficulty?.slice(1);
 //     switch (difficulty) {
 //       case "Easy":
 //         return "bg-green-500/30 text-green-200";
@@ -151,12 +168,52 @@
 //         return "bg-yellow-500/30 text-yellow-200";
 //       case "Hard":
 //         return "bg-red-500/30 text-red-200";
+//       case "PostgreSQL":
+//         return "bg-red-500/30 text-red-200";
+//       case "MySQL":
+//         return "bg-red-500/30 text-red-200";
+//       case "Oracle":
+//         return "bg-red-500/30 text-red-200";
 //       default:
 //         return "bg-gray-500/30 text-gray-200";
 //     }
 //   };
 
-//   // console.log(timeLeft);
+//   // Convert datetime-local value back to the original pipe format
+//   const formatDateTimeForAPI = (datetimeLocalValue) => {
+//     if (!datetimeLocalValue) return "";
+
+//     const dateObj = new Date(datetimeLocalValue);
+
+//     // Format: "Month Date, Year | HH:MM:SS AM/PM"
+//     const months = [
+//       "January",
+//       "February",
+//       "March",
+//       "April",
+//       "May",
+//       "June",
+//       "July",
+//       "August",
+//       "September",
+//       "October",
+//       "November",
+//       "December",
+//     ];
+//     const month = months[dateObj.getMonth()];
+//     const date = dateObj.getDate();
+//     const year = dateObj.getFullYear();
+
+//     let hours = dateObj.getHours();
+//     const ampm = hours >= 12 ? "PM" : "AM";
+//     hours = hours % 12;
+//     hours = hours ? hours : 12; // the hour '0' should be '12'
+
+//     const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+//     const seconds = String(dateObj.getSeconds()).padStart(2, "0");
+
+//     return `${month} ${date}, ${year} | ${hours}:${minutes}:${seconds} ${ampm}`;
+//   };
 
 //   return (
 //     <div className="min-h-screen text-white">
@@ -175,22 +232,22 @@
 //             </div>
 //           </div>
 
-//           <div className="flex flex-col items-end">
-//             <div className="flex items-center space-x-2 text-red-200">
-//               <Clock className="w-5 h-5" />
-//               <span className="text-xl font-mono">
-//                 {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:
-//                 {formatTime(timeLeft.seconds)}
-//               </span>
-//             </div>
-//             <div className="text-sm text-red-300">
-//               {ongoing
-//                 ? "Time Remaining"
-//                 : timeLeft.hours == 0 &&
-//                   timeLeft.seconds == 0 &&
-//                   timeLeft.minutes == 0
-//                 ? "Ended"
-//                 : "Starts In"}
+//           <div className="flex items-center space-x-2">
+//             <div className="flex flex-col items-end">
+//               <div className="flex items-center space-x-2 text-red-200">
+//                 <Clock className="w-5 h-5" />
+//                 <span className="text-xl font-mono">
+//                   {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:
+//                   {formatTime(timeLeft.seconds)}
+//                 </span>
+//               </div>
+//               <div className="text-sm text-red-300">
+//                 {contestStatus === "ongoing"
+//                   ? "Time Remaining"
+//                   : contestStatus === "ended"
+//                   ? "Ended"
+//                   : "Starts In"}
+//               </div>
 //             </div>
 //           </div>
 //         </div>
@@ -205,6 +262,13 @@
 //             >
 //               <FileQuestion className="w-4 h-4 mr-2" />
 //               Questions
+//             </TabsTrigger>
+//             <TabsTrigger
+//               value="status"
+//               className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+//             >
+//               <Eye className="w-4 h-4 mr-2" />
+//               Status
 //             </TabsTrigger>
 //             <TabsTrigger
 //               value="leaderboard"
@@ -238,6 +302,11 @@
 //             contestId={contestId}
 //           />
 
+//           <StatusTab
+//             contestId={contestId}
+//             getDifficultyStyles={getDifficultyStyles}
+//           />
+
 //           <Leaderboard contestId={contestId} />
 
 //           <DDLTab
@@ -258,6 +327,7 @@
 // };
 
 // export default ContestPage;
+
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -288,6 +358,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { showTimerUpdatedToast } from "@/app/Components/Dumped/utils/toast";
 
 const ContestPage = () => {
@@ -301,39 +372,14 @@ const ContestPage = () => {
   const params = useParams(); // returns an object of dynamic params
   const [contestId, setContestId] = useState(params.id);
   const [contestStatus, setContestStatus] = useState("upcoming"); // upcoming, ongoing, ended
+  const [loading, setLoading] = useState(true); // Loading state for API data
 
   // States for timer edit dialog
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mock questions for the contest
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      title: "Find all users who made a purchase in the last 30 days",
-      description:
-        "Write a SQL query to retrieve all users who made at least one purchase in the last 30 days. Include their user ID, name, email, and total purchase amount.",
-      difficulty: "Easy",
-      asnwer: "C1 | C2 | C3",
-      points: 10,
-    },
-    {
-      id: 2,
-      title: "Calculate average order value by category",
-      description:
-        "Write a SQL query to calculate the average order value grouped by product category. Sort the results by average order value in descending order.",
-      difficulty: "Medium",
-      points: 20,
-    },
-    {
-      id: 3,
-      title: "Find products with inventory anomalies",
-      description:
-        "Write a SQL query to identify products where the current inventory count doesn't match the calculated inventory based on purchase and sales records.",
-      difficulty: "Hard",
-      points: 30,
-    },
-  ]);
+  const [questions, setQuestions] = useState([]);
 
   const parseDateTime = (datetimeStr) => {
     // Split "Month Date, Year | HH:MM:SS AM/PM"
@@ -358,6 +404,7 @@ const ContestPage = () => {
 
   useEffect(() => {
     const fetchContestData = async () => {
+      setLoading(true); // Start loading
       try {
         const response = await axios.get(`/api/contest-info/${contestId}`);
         console.log(response);
@@ -374,16 +421,18 @@ const ContestPage = () => {
 
         const now = new Date();
 
-        // Set contest status
+        let diffInSeconds = 0;
+
         if (now < start) {
           setContestStatus("upcoming");
+          diffInSeconds = end >= now ? Math.floor((start - now) / 1000) : 0;
         } else if (now >= start && now <= end) {
           setContestStatus("ongoing");
+          diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
         } else {
           setContestStatus("ended");
         }
 
-        const diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
         const hours = end >= now ? Math.floor(diffInSeconds / 3600) : 0;
         const minutes =
           end >= now ? Math.floor((diffInSeconds % 3600) / 60) : 0;
@@ -393,6 +442,8 @@ const ContestPage = () => {
         // console.log(timeLeft);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false); // End loading regardless of outcome
       }
     };
 
@@ -446,7 +497,7 @@ const ContestPage = () => {
   // Get difficulty styling
   const getDifficultyStyles = (difficulty) => {
     // difficulty[0] -= 32;
-    difficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+    difficulty = difficulty?.charAt(0).toUpperCase() + difficulty?.slice(1);
     switch (difficulty) {
       case "Easy":
         return "bg-green-500/30 text-green-200";
@@ -508,32 +559,51 @@ const ContestPage = () => {
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 flex items-center justify-center">
-              {/* <Database className="w-8 h-8" /> */}
               <Logo extraClasses="h-12 w-12" />
             </div>
             <div>
-              {/* <h1 className="text-2xl font-bold">SQL Masters Challenge</h1> */}
-              <h1 className="text-2xl font-bold">{contestInfo.name}</h1>
-              <p className="text-red-300">Database Contest - Advanced Level</p>
+              {loading ? (
+                <>
+                  <Skeleton className="h-8 w-48 bg-red-500/20" />
+                  <Skeleton className="h-4 w-32 mt-1 bg-red-500/10" />
+                </>
+              ) : (
+                <>
+                  <h1 className="text-2xl font-bold">{contestInfo.name}</h1>
+                  <p className="text-red-300">
+                    Database Contest - Advanced Level
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
             <div className="flex flex-col items-end">
-              <div className="flex items-center space-x-2 text-red-200">
-                <Clock className="w-5 h-5" />
-                <span className="text-xl font-mono">
-                  {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:
-                  {formatTime(timeLeft.seconds)}
-                </span>
-              </div>
-              <div className="text-sm text-red-300">
-                {contestStatus === "ongoing"
-                  ? "Time Remaining"
-                  : contestStatus === "ended"
-                  ? "Ended"
-                  : "Starts In"}
-              </div>
+              {loading ? (
+                <>
+                  <Skeleton className="h-7 w-24 bg-red-500/20" />
+                  <Skeleton className="h-4 w-16 mt-1 bg-red-500/10" />
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center space-x-2 text-red-200">
+                    <Clock className="w-5 h-5" />
+                    <span className="text-xl font-mono">
+                      {formatTime(timeLeft.hours)}:
+                      {formatTime(timeLeft.minutes)}:
+                      {formatTime(timeLeft.seconds)}
+                    </span>
+                  </div>
+                  <div className="text-sm text-red-300">
+                    {contestStatus === "ongoing"
+                      ? "Time Remaining"
+                      : contestStatus === "ended"
+                      ? "Ended"
+                      : "Starts In"}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -579,33 +649,59 @@ const ContestPage = () => {
             </TabsTrigger>
           </TabsList>
 
-          <QuestionsTab
-            currentQuestion={currentQuestion}
-            questions={questions}
-            setQuestions={setQuestions}
-            getDifficultyStyles={getDifficultyStyles}
-            navigateQuestion={navigateQuestion}
-            contestId={contestId}
-          />
+          {loading ? (
+            // Skeleton loading state for main content area
+            <div className="space-y-6">
+              {/* Question Tab Skeleton */}
+              <div className="rounded-lg border border-red-500/30 bg-black/40 p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <Skeleton className="h-8 w-64 bg-red-500/20" />
+                  <Skeleton className="h-6 w-24 bg-red-500/20" />
+                </div>
+                <Skeleton className="h-32 w-full mt-4 bg-red-500/10" />
+                <div className="mt-6 space-y-4">
+                  <Skeleton className="h-24 w-full bg-red-500/10" />
+                  <Skeleton className="h-24 w-full bg-red-500/10" />
+                </div>
+                <div className="flex justify-between mt-6">
+                  <Skeleton className="h-10 w-24 bg-red-500/20" />
+                  <Skeleton className="h-10 w-24 bg-red-500/20" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Regular content when loaded
+            <>
+              <QuestionsTab
+                currentQuestion={currentQuestion}
+                questions={questions}
+                setQuestions={setQuestions}
+                getDifficultyStyles={getDifficultyStyles}
+                navigateQuestion={navigateQuestion}
+                contestId={contestId}
+              />
 
-          <StatusTab
-            contestId={contestId}
-            getDifficultyStyles={getDifficultyStyles}
-          /> 
+              <StatusTab
+                contestId={contestId}
+                getDifficultyStyles={getDifficultyStyles}
+                loading={loading}
+              />
 
-          <Leaderboard contestId={contestId} />
+              <Leaderboard contestId={contestId} />
 
-          <DDLTab
-            ddl={{
-              oracle: contestInfo.oracle_ddl,
-              mysql: contestInfo.mysql_ddl,
-              postgresql: contestInfo.postgresql_ddl,
-            }}
-            contestId={contestId}
-            setDdl={setContestInfo}
-          />
+              <DDLTab
+                ddl={{
+                  oracle: contestInfo.oracle_ddl,
+                  mysql: contestInfo.mysql_ddl,
+                  postgresql: contestInfo.postgresql_ddl,
+                }}
+                contestId={contestId}
+                setDdl={setContestInfo}
+              />
 
-          <VisualSchemaTab schema={{}} />
+              <VisualSchemaTab schema={{}} />
+            </>
+          )}
         </Tabs>
       </main>
     </div>

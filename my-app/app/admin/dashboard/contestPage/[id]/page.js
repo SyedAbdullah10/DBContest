@@ -308,33 +308,7 @@ const ContestPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mock questions for the contest
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      title: "Find all users who made a purchase in the last 30 days",
-      description:
-        "Write a SQL query to retrieve all users who made at least one purchase in the last 30 days. Include their user ID, name, email, and total purchase amount.",
-      difficulty: "Easy",
-      asnwer: "C1 | C2 | C3",
-      points: 10,
-    },
-    {
-      id: 2,
-      title: "Calculate average order value by category",
-      description:
-        "Write a SQL query to calculate the average order value grouped by product category. Sort the results by average order value in descending order.",
-      difficulty: "Medium",
-      points: 20,
-    },
-    {
-      id: 3,
-      title: "Find products with inventory anomalies",
-      description:
-        "Write a SQL query to identify products where the current inventory count doesn't match the calculated inventory based on purchase and sales records.",
-      difficulty: "Hard",
-      points: 30,
-    },
-  ]);
+  const [questions, setQuestions] = useState([]);
 
   const parseDateTime = (datetimeStr) => {
     // Split "Month Date, Year | HH:MM:SS AM/PM"
@@ -376,10 +350,14 @@ const ContestPage = () => {
         const now = new Date();
 
         // Set contest status
+        let diffInSeconds = 0;
+
         if (now < start) {
           setContestStatus("upcoming");
+          diffInSeconds = end >= now ? Math.floor((start - now) / 1000) : 0;
         } else if (now >= start && now <= end) {
           setContestStatus("ongoing");
+          diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
         } else {
           setContestStatus("ended");
         }
@@ -387,13 +365,12 @@ const ContestPage = () => {
         // Prepare initial values for edit form
         setEditStartTime(formatDateTimeForInput(start));
         setEditEndTime(formatDateTimeForInput(end));
-
-        const diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
+        
         const hours = end >= now ? Math.floor(diffInSeconds / 3600) : 0;
         const minutes =
           end >= now ? Math.floor((diffInSeconds % 3600) / 60) : 0;
         const seconds = end >= now ? diffInSeconds % 60 : 0;
-
+        
         setTimeLeft({ hours, minutes, seconds });
         // console.log(timeLeft);
       } catch (err) {
@@ -451,7 +428,7 @@ const ContestPage = () => {
   // Get difficulty styling
   const getDifficultyStyles = (difficulty) => {
     // difficulty[0] -= 32;
-    difficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+    difficulty = difficulty?.charAt(0)?.toUpperCase() + difficulty?.slice(1);
     switch (difficulty) {
       case "Easy":
         return "bg-green-500/30 text-green-200";

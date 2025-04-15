@@ -1,5 +1,7 @@
 // File: app/api/contests/route.js
 import supabase from "@/supabaseClient";
+import pool from "@/mysqlpool";
+import oracle_pool from "@/oracleDbPool";
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
@@ -26,6 +28,133 @@ export async function POST(request) {
         },
         { status: 400 }
       );
+    }
+
+    if (!ddlContent.postgresql || !ddlContent.mysql || !ddlContent.oraclesql) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "All DDL must be provided!",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (ddlContent.postgresql) {
+      const { error: pgError } = await supabase.rpc("sql_exec", {
+        query: ddlContent.postgresql,
+      });
+
+      if (pgError) {
+        console.error("❌ PostgreSQL DDL execution error:", pgError);
+        return NextResponse.json(
+          {
+            success: false,
+            message: "❌ PostgreSQL DDL execution error",
+            error: pgError.message,
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    if (ddlContent.mysql) {
+      const connection = await pool.getConnection();
+      try {
+        console.log("✅ Connected to MySQL");
+
+        if (ddl) {
+          await connection.execute(query);
+          result = "DDL Executed Successfully";
+        } else {
+          const [rows] = await connection.execute(query);
+          result = rows;
+        }
+      } finally {
+        connection.release(); // Always release the connection
+        pool.end();
+      }
+    }
+
+    // if (ddlContent.oraclesql) {
+    //   let connection;
+    //   try {
+    //     const o_pool = await oracle_pool();
+    //     connection = await o_pool.getConnection();
+    //     console.log("✅ Connected to Oracle");
+
+    //     if (ddl) {
+    //       await connection.execute(query);
+    //       result = "DDL Executed Successfully";
+    //     } else {
+    //       const isInsertOrUpdateOrDelete = /^(insert|update|delete)/i.test(
+    //         query.trim()
+    //       );
+    //       const resultSet = await connection.execute(query, []); // <-- 🔥 FIX HERE
+    //       if (isInsertOrUpdateOrDelete) {
+    //         await connection.commit(); // 🔒 Persist the data
+    //         result = "Query Executed and Changes Committed";
+    //       } else {
+    //         result = resultSet.rows; // SELECT returns rows
+    //       }
+    //     }
+    //   } catch (error) {
+    //     console.error("❌ Oracle query error:", error);
+    //     throw error;
+    //   } finally {
+    //     if (connection) {
+    //       try {
+    //         await connection.close(); // always release the connection
+    //       } catch (closeErr) {
+    //         console.error("❌ Error releasing Oracle connection:", closeErr);
+    //       }
+    //     }
+    //   }
+    // }
+
+    if (ddlContent.oraclesql) {
+      let connection;
+      let o_pool;
+      try {
+        o_pool = await oracle_pool(); // create pool
+        connection = await o_pool.getConnection();
+        console.log("✅ Connected to Oracle");
+
+        if (ddl) {
+          await connection.execute(query);
+          result = "DDL Executed Successfully";
+        } else {
+          const isInsertOrUpdateOrDelete = /^(insert|update|delete)/i.test(
+            query.trim()
+          );
+          const resultSet = await connection.execute(query, []);
+          if (isInsertOrUpdateOrDelete) {
+            await connection.commit();
+            result = "Query Executed and Changes Committed";
+          } else {
+            result = resultSet.rows;
+          }
+        }
+      } catch (error) {
+        console.error("❌ Oracle query error:", error);
+        throw error;
+      } finally {
+        if (connection) {
+          try {
+            await connection.close(); // ✅ release connection back to pool
+          } catch (closeErr) {
+            console.error("❌ Error releasing Oracle connection:", closeErr);
+          }
+        }
+        if (o_pool) {
+          try {
+            await o_pool.close(); // ✅ destroy the entire pool
+            console.log("🛑 Oracle pool closed");
+          } catch (poolCloseErr) {
+            console.error("❌ Error closing Oracle pool:", poolCloseErr);
+          }
+        }
+      }
     }
 
     // Insert contest into Supabase

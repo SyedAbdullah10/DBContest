@@ -362,8 +362,8 @@ const ManageUsers = () => {
       </Dialog>
 
       {/* Add User Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-black/40 backdrop-blur-lg border border-red-500/30 shadow-xl rounded-lg">
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} >
+        <DialogContent className="bg-black/40 backdrop-blur-lg border w-[80rem] border-red-500/30 shadow-xl rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-white text-center text-2xl">
               Add New User

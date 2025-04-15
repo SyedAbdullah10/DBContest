@@ -1,5 +1,6 @@
 // app/api/evaluate/route.js
 import { NextResponse } from "next/server";
+import supabase from "@/supabaseClient";
 
 export async function POST(req) {
   try {
@@ -10,76 +11,110 @@ export async function POST(req) {
       submitted_at,
       sql_mode,
       user_answer,
-      dbType,
       ddl,
     } = await req.json();
 
-    // Step 1: Fetch correct answer
-    const questionRes = await fetch(`/api/get-question-answer`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question_id, contest_id }),
-    });
+    // Step 1: Fetch correct actual_answer
+    const questionRes = await fetch(
+      `http://localhost:3000/api/get-question-answer`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question_id, contest_id }),
+      }
+    );
 
-    const questionData = await questionRes.json();
-    if (!questionData.success) {
-      return NextResponse.json({ success: false, error: "Failed to fetch correct answer" }, { status: 400 });
-    }
-
-    const correctQuery = questionData.answer;
-
-    // Step 2: Execute correct query
-    const correctRes = await fetch(`/api/execute`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: correctQuery, dbType, ddl }),
-    });
-
-    const correctData = await correctRes.json();
-    if (!correctData.success) {
-      return NextResponse.json({ success: false, error: "Correct answer execution failed", details: correctData.error }, { status: 400 });
+    const res = await questionRes.json();
+    console.log(res);
+    const actual_answer = res.answer;
+    if (!res.success) {
+      return NextResponse.json(
+        { success: false, error: "Failed to fetch correct answer" },
+        { status: 400 }
+      );
     }
 
     // Step 3: Execute user query
-    const userRes = await fetch(`/api/execute-participant`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: user_answer, dbType, ddl }),
-    });
+    const userRes = await fetch(
+      `http://localhost:3000/api/execute-participant`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: user_answer, sql_mode, ddl }),
+      }
+    );
 
     const userData = await userRes.json();
     if (!userData.success) {
-      // Save the submission as Wrong Answer immediately
-      await supabase.from("Submissions").insert([{
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User query execution failed",
+          details: userData.error,
+        },
+        { status: 400 }
+      );
+    }
+
+    const user_actual_answer = userData.data;
+
+    let user_csv_ans = [];
+    for (let i = 0; i < user_actual_answer.length; i++) {
+      let row = user_actual_answer[i];
+      user_csv_ans.push(Object.values(row).join(",").trim());
+    }
+
+    actual_answer = actual_answer.trim().split("\n").map(line => line.trim());
+
+
+    let isCorrect = true;
+
+    if (actual_answer.length != user_csv_ans.length) {
+      isCorrect = false;
+    } else {
+      for (let i = 0; i < actual_answer.length; i++) {
+        if (actual_answer[i] != user_csv_ans[i]) {
+          isCorrect = false;
+          break;
+        }
+      }
+    }
+
+    // console.log(userData.data);
+    console.log("ACTUAL ANSWER: ", actual_answer);
+    console.log("ACTUAL USER QUERY ANSWER: ", user_csv_ans);
+
+    // Step 4: Compare
+    // const isCorrect = JSON.stringify(actual_answer) === JSON.stringify(userData.data);
+    // const isCorrect = actual_answer === user_csv_ans;
+    // const isCorrect = true;
+    const status = isCorrect ? "Accepted" : "Wrong Answer";
+
+    // console.log(JSON.stringify(actual_answer));
+    // console.log(JSON.stringify(userData.data));
+
+    // Step 5: Insert submission
+    const { error: insertError } = await supabase.from("Submissions").insert([
+      {
         user_id,
         contest_id,
         question_id,
         submitted_at,
         sql_mode,
         user_answer,
-        status: "Wrong Answer"
-      }]);
-
-      return NextResponse.json({ success: false, error: "User query execution failed", details: userData.error }, { status: 400 });
-    }
-
-    // Step 4: Compare
-    const isCorrect = JSON.stringify(correctData.data) === JSON.stringify(userData.data);
-    const status = isCorrect ? "Accepted" : "Wrong Answer";
-
-    // Step 5: Insert submission
-    const { error: insertError } = await supabase.from("Submissions").insert([{
-      user_id,
-      contest_id,
-      question_id,
-      submitted_at,
-      sql_mode,
-      user_answer,
-      status
-    }]);
+        status,
+      },
+    ]);
 
     if (insertError) {
-      return NextResponse.json({ success: false, error: "Failed to save submission", details: insertError.message }, { status: 500 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Failed to save submission",
+          details: insertError.message,
+        },
+        { status: 500 }
+      );
     }
 
     // Step 6: Return result
@@ -87,13 +122,15 @@ export async function POST(req) {
       success: true,
       result: {
         status,
-        isCorrect,
-        correctResult: correctData.data,
-        userResult: userData.data
-      }
+        correctResult: actual_answer,
+        userResult: user_csv_ans,
+      },
     });
   } catch (err) {
     console.error("Evaluation error:", err);
-    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

@@ -29,4 +29,5 @@ export async function PUT(req, { params }) {
   }
 
   return NextResponse.json({ message: "DDL updated successfully" });
+
 }
