@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   try {
     const data = await request.json();
-    console.log(data);
+    // console.log(data);
 
     // Extract data from the request
     const {

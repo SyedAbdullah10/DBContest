@@ -4,7 +4,7 @@ import supabase from "@/supabaseClient";
 export async function POST(req) {
   const { user_id, contest_id } = await req.json();
 
-  console.log(user_id, contest_id);
+  // console.log(user_id, contest_id);
   
 
   const { data, error } = await supabase

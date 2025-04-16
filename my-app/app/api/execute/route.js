@@ -4,15 +4,15 @@ import oracle_pool from "@/oracleDbPool";
 
 export async function POST(req) {
   let { query, sql_mode, ddl } = await req.json(); // Get query, database type, and DDL flag
-  console.log("Received query:", query);
-  console.log("Database type:", sql_mode);
-  console.log("DDL flag:", ddl);
+  // console.log("Received query:", query);
+  // console.log("Database type:", sql_mode);
+  // console.log("DDL flag:", ddl);
 
   try {
     let result;
 
     let queries = query.split(";");
-    console.log(queries);
+    // console.log(queries);
     
 
     // ✅ PostgreSQL via Supabase
@@ -24,7 +24,7 @@ export async function POST(req) {
         const { data, error } = await supabase.rpc("sql_exec", {
           query,
         });
-        console.log("Supabase response:", data, error);
+        // console.log("Supabase response:", data, error);
         if (error) throw new Error("PostgreSQL Error: " + error.message);
         result.push(ddl ? "DDL Executed Successfully" : data);
       }
@@ -34,7 +34,7 @@ export async function POST(req) {
     else if (sql_mode === "mysql") {
       const connection = await pool.getConnection();
       try {
-        console.log("✅ Connected to MySQL");
+        // console.log("✅ Connected to MySQL");
 
         if (ddl) {
           result = [];
@@ -95,19 +95,19 @@ export async function POST(req) {
       try {
         const o_pool = await oracle_pool();
         connection = await o_pool.getConnection();
-        console.log("✅ Connected to Oracle");
+        // console.log("✅ Connected to Oracle");
 
         if (!ddl) {
           result = await connection.execute(queries[0]);
           result = result.rows;
         } else {
-          console.log(queries);
+          // console.log(queries);
 
           result = [];
           for (let i = 0; i < queries.length; i++) {
             let singleQuery = queries[i];
             if (singleQuery != "") {
-              console.log(singleQuery);
+              // console.log(singleQuery);
 
               singleQuery = singleQuery.trim();
               await connection.execute(singleQuery, []); // <-- 🔥 FIX HERE

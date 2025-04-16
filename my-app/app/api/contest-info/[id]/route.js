@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET(req) {
   const url = new URL(req.url);
   const contestId = url.pathname.split("/").pop(); // gets the last part of the URL
-  console.log(contestId);
+  // console.log(contestId);
 
   // Fetch contest info
   const { data: contest, error: contestError } = await supabase
@@ -28,7 +28,7 @@ export async function GET(req) {
     .eq("ContestId", contestId)
     .order("questionNumber");
 
-  console.log(questions);
+  // console.log(questions);
 
   if (questionsError) {
     return NextResponse.json(

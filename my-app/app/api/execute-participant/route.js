@@ -82,9 +82,9 @@ import oracle_pool from "@/oracleDbPool";
 
 export async function POST(req) {
   const { query, sql_mode, ddl } = await req.json(); // Get query, database type, and DDL flag
-  console.log("Received query:", query);
-  console.log("Database type:", sql_mode);
-  console.log("DDL flag:", ddl);
+  // console.log("Received query:", query);
+  // console.log("Database type:", sql_mode);
+  // console.log("DDL flag:", ddl);
 
   try {
     let result;
@@ -92,7 +92,7 @@ export async function POST(req) {
     // ✅ PostgreSQL via Supabase
     if (sql_mode === "postgresql") {
       const { data, error } = await supabase.rpc("sql_exec", { query });
-      console.log("Supabase response:", data, error);
+      // console.log("Supabase response:", data, error);
 
       if (error) throw new Error("PostgreSQL Error: " + error.message);
       result = ddl ? "DDL Executed Successfully" : data;
@@ -102,7 +102,7 @@ export async function POST(req) {
     else if (sql_mode === "mysql") {
       const connection = await pool.getConnection();
       try {
-        console.log("✅ Connected to MySQL");
+        // console.log("✅ Connected to MySQL");
 
         if (ddl) {
           await connection.execute(query);
@@ -119,7 +119,7 @@ export async function POST(req) {
       try {
         const o_pool = await oracle_pool();
         connection = await o_pool.getConnection();
-        console.log("✅ Connected to Oracle");
+        // console.log("✅ Connected to Oracle");
 
         if (ddl) {
           await connection.execute(query);
