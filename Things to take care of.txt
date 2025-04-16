@@ -1,0 +1,7 @@
+status notification
+questions cannot be submitted after accepted
+leaderboard first solve issue
+Copy DDL issue
+Time issue
+submissions should be closed after the contest ended
+used leaderboard issue

@@ -26,7 +26,7 @@ export async function POST(req) {
 
     const res = await questionRes.json();
     console.log(res);
-    const actual_answer = res.answer;
+    let actual_answer = res.answer;
     if (!res.success) {
       return NextResponse.json(
         { success: false, error: "Failed to fetch correct answer" },
@@ -56,7 +56,7 @@ export async function POST(req) {
       );
     }
 
-    const user_actual_answer = userData.data;
+    let user_actual_answer = userData.data;
 
     let user_csv_ans = [];
     for (let i = 0; i < user_actual_answer.length; i++) {

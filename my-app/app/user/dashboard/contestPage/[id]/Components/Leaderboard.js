@@ -406,9 +406,6 @@ const Leaderboard = ({ contestId }) => {
                     <TableHead className="text-white font-medium">
                       Solution
                     </TableHead>
-                    <TableHead className="text-white font-medium">
-                      Actions
-                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -487,41 +484,7 @@ const Leaderboard = ({ contestId }) => {
                             </pre>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          {submission.status === "Wrong Answer" && (
-                            <Button
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 transition-all duration-200 hover:shadow-lg"
-                              onClick={() =>
-                                handleSubmissionStatus(
-                                  submission.submission_id,
-                                  "Accept"
-                                )
-                              }
-                              disabled={acceptLoading}
-                            >
-                              <CheckCircle className="w-4 h-4" />
-                              Accept
-                            </Button>
-                          )}
-                          {submission.status === "Accepted" && (
-                            <Button
-                              size="sm"
-                              className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1 transition-all duration-200 hover:shadow-lg"
-                              onClick={() =>
-                                handleSubmissionStatus(
-                                  submission.submission_id,
-                                  "Wrong Answer"
-                                )
-                              }
-                              disabled={rejectLoading}
-                            >
-                              <XCircle className="w-4 h-4" />
-                              Reject
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
+                                              </TableRow>
                     );
                   })}
                 </TableBody>
@@ -529,28 +492,6 @@ const Leaderboard = ({ contestId }) => {
             </div>
           )}
 
-          <div className="flex justify-between mt-6">
-            <Button
-              variant="outline"
-              className="border-red-500/50 text-black hover:bg-red-900/20 hover:text-white transition-colors"
-              onClick={() => setDialogOpen(false)}
-            >
-              <XCircle className="w-4 h-4 mr-2" />
-              Close
-            </Button>
-            {selectedSubmissions &&
-              selectedSubmissions.submissions.some(
-                (s) => s.status === "Wrong Answer"
-              ) && (
-                <Button
-                  className="bg-red-600 hover:bg-red-700 text-white transition-colors"
-                  onClick={() => handleReviewAll()}
-                >
-                  <CheckSquare className="w-4 h-4 mr-2" />
-                  Review All
-                </Button>
-              )}
-          </div>
         </DialogContent>
       </Dialog>
     </TabsContent>

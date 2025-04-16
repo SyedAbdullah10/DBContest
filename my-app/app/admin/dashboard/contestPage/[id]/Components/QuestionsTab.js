@@ -735,7 +735,9 @@ const QuestionsTab = React.memo(
 
       try {
         const questionId = questions[currentQuestion - 1].id;
-
+        console.log("Questions: ", questions);
+        console.log("Question_ID: ", questionId);
+        
         const updatedQuestion = {
           questionTitle: editedTitle,
           questionDescription: editedDescription,

@@ -3,21 +3,26 @@ import supabase from "@/supabaseClient";
 
 export async function PUT(req, { params }) {
   const { question_id } = params;
+  console.log("QuestionID: ", question_id);
   const id = question_id;
   const body = await req.json();
 
   const { questionTitle, questionDescription, Answer, points, difficulty } =
     body;
 
+  const updatedQuestion = {
+    questionTitle,
+    questionDescription,
+    Answer,
+    points,
+    difficulty,
+  }
+
+  console.log("Updated Question: ", updatedQuestion);
+
   const { data, error } = await supabase
     .from("Questions")
-    .update({
-      questionTitle,
-      questionDescription,
-      Answer,
-      points,
-      difficulty,
-    })
+    .update(updatedQuestion)
     .eq("id", id)
     .select()
     .single();
