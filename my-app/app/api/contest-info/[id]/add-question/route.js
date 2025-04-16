@@ -25,7 +25,7 @@ export async function POST(req, { params }) {
     questionNumber,
   };
 
-  console.log(newQuestion);
+  // console.log(newQuestion);
   
 
   const { data, error } = await supabase.from("Questions").insert(newQuestion);

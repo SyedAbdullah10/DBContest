@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET(request, { params }) {
   try {
     const { contestId } = await params;
-    console.log("ContestID: ", contestId);
+    // console.log("ContestID: ", contestId);
     
     // Validate contestId
     if (!contestId) {
@@ -22,7 +22,7 @@ export async function GET(request, { params }) {
       .eq("id", contestId)
       .single();
     
-      console.log("Contest Data, ", contestData);
+      // console.log("Contest Data, ", contestData);
       
       
       if (contestError || !contestData) {
@@ -36,7 +36,7 @@ export async function GET(request, { params }) {
       .eq("ContestId", contestId)
       .order("questionNumber", { ascending: true });
       
-      console.log("Questions, ", questions);
+      // console.log("Questions, ", questions);
       if (questionsError) {
         return NextResponse.json(
           { error: "Failed to fetch contest questions" },
@@ -50,7 +50,7 @@ export async function GET(request, { params }) {
         contest_id_input: contestId,
       });
 
-    console.log("All submissions, ", allSubmissions);
+    // console.log("All submissions, ", allSubmissions);
 
     allSubmissions = allSubmissions?.map((s) => {
       return {
@@ -70,7 +70,7 @@ export async function GET(request, { params }) {
     });
 
     if (allSubmissionsError) {
-      console.log("Cleaned Submission Error: ", allSubmissionsError);
+      // console.log("Cleaned Submission Error: ", allSubmissionsError);
 
       // if (submissionsError) {
       return NextResponse.json(
@@ -162,7 +162,7 @@ export async function GET(request, { params }) {
       }
     });
 
-    console.log(userMap);
+    // console.log(userMap);
 
     // 5. Convert the map to an array and sort by score (descending) and penalty (ascending)
     let leaderboard = Array.from(userMap.values()).map((user) => {

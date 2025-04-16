@@ -18,7 +18,7 @@ export async function PUT(req, { params }) {
     difficulty,
   }
 
-  console.log("Updated Question: ", updatedQuestion);
+  // console.log("Updated Question: ", updatedQuestion);
 
   const { data, error } = await supabase
     .from("Questions")

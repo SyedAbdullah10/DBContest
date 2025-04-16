@@ -25,7 +25,7 @@ export async function POST(req) {
     );
 
     let res = await questionRes.json();
-    console.log(res);
+    // console.log(res);
     let actual_answer = res.answer;
     if (!res.success) {
       return NextResponse.json(
@@ -80,7 +80,7 @@ export async function POST(req) {
       }
     }
 
-    // console.log(userData.data);
+    console.log(userData.data);
     console.log("ACTUAL ANSWER: ", actual_answer);
     console.log("ACTUAL USER QUERY ANSWER: ", user_csv_ans);
 

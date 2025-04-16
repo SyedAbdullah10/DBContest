@@ -13,11 +13,11 @@ const DDL_QUERY = `
 
 async function applyDDL() {
   try {
-    console.log("Applying DDL to all databases...");
+    // console.log("Applying DDL to all databases...");
 
     // ✅ Supabase (PostgreSQL)
     const { error: pgError } = await supabase.rpc('run_sql', { query: DDL_QUERY });
-    console.log("PostgreSQL DDL Result:", pgError ? "Failed" : "Success");
+    // console.log("PostgreSQL DDL Result:", pgError ? "Failed" : "Success");
     if (pgError) console.error("PostgreSQL Error:", pgError.message);
 
     // ✅ SQLite
@@ -33,7 +33,7 @@ async function applyDDL() {
     // await connection.commit();
     // await connection.close();
 
-    console.log("DDL successfully applied to all databases.");
+    // console.log("DDL successfully applied to all databases.");
   } catch (error) {
     console.error("DDL Execution Failed:", error.message);
   }

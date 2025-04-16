@@ -23,8 +23,8 @@ export const authOptions = {
       },
       async authorize(credentials) {
         const { identifier, password, role } = credentials;
-        console.log("identifier", identifier);
-        console.log("password", password);
+        // console.log("identifier", identifier);
+        // console.log("password", password);
         // Find user by username
         const { data: user, error } = await supabase
           .from("Users")
@@ -38,7 +38,7 @@ export const authOptions = {
 
         // Verify password
         const passwordMatch = await bcrypt.compare(password, user.password);
-        console.log("passwordMatch", passwordMatch);
+        // console.log("passwordMatch", passwordMatch);
 
         if (!passwordMatch) {
           throw new Error("Invalid credentials");

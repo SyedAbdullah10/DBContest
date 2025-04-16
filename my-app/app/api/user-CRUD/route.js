@@ -16,7 +16,7 @@ dotenv.config({ path: ".env.local" });
 export async function POST(req) {
   try {
     const { all_users } = await req.json();
-    console.log(all_users);
+    // console.log(all_users);
 
     // Loop through each user and hash the password before insertion
     for (let i = 0; i < all_users.length; i++) {
@@ -59,7 +59,7 @@ export async function POST(req) {
 export async function DELETE(req) {
   try {
     const { all_users_ids } = await req.json();
-    console.log(all_users_ids);
+    // console.log(all_users_ids);
 
     // Loop through each user and hash the password before insertion
     for (let i = 0; i < all_users_ids.length; i++) {
