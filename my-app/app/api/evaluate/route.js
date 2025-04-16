@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import supabase from "@/supabaseClient";
 const fs = require("fs");
+const path = require("path");
 
 export async function POST(req) {
   try {
@@ -18,7 +19,6 @@ export async function POST(req) {
     } = await req.json();
 
     // console.log("here");
-    
 
     // Step 1: Fetch correct actual_answer
     let questionRes = await fetch(
@@ -125,9 +125,20 @@ export async function POST(req) {
       );
     }
 
-    // maintain Log
-    const logMessage = `====================================================================================================================================================================================\n${username} | ${questionNumber} | ${status} | ${sql_mode} | ${submitted_at}\n${tmp_user_csv_ans}\n${tmp_actual_answer}\n====================================================================================================================================================================================\n\n
-    `;
+    const logDir = path.join(__dirname, "submission_logs");
+
+    // Make sure the folder exists
+    // if (!fs.existsSync(logDir)) {
+    //   fs.mkdirSync(logDir, { recursive: true });
+    // }
+
+    // const logFile = path.join(logDir, `${contest_id}.txt`);
+    // // maintain Log
+    // const logMessage = `====================================================================================================================================================================================\n${username} | ${questionNumber} | ${status} | ${sql_mode} | ${submitted_at}\n${tmp_user_csv_ans}\n${tmp_actual_answer}\n====================================================================================================================================================================================\n\n
+    // `;
+    // fs.appendFile(logFile, logMessage, "utf8", (err) => {
+    //   if (err) console.error("Error writing to log:", err);
+    // });
     fs.appendFile(`${contest_id}.txt`, logMessage, "utf8", (err) => {
       if (err) console.error("Error writing to log:", err);
     });
