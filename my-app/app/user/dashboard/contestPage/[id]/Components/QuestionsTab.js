@@ -1,177 +1,6 @@
-// "use client";
-
-// import React, { useState, useEffect } from "react";
-// import { TabsContent } from "@/components/ui/tabs";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent } from "@/components/ui/card";
-// import {
-//   Award,
-//   ChevronLeft,
-//   ChevronRight,
-//   Lightbulb,
-//   Code,
-//   Sparkles,
-//   Clock,
-// } from "lucide-react";
-// import SqlEditor from "@/app/Components/SQL_Compiler/SqlEditor";
-
-// const QuestionsTab = React.memo(
-//   ({
-//     currentQuestion,
-//     questions,
-//     setQuestions,
-//     getDifficultyStyles,
-//     navigateQuestion,
-//     contestId
-
-//     /*
-
-//           currentQuestion={currentQuestion}
-//     questions={questions}
-//     setQuestions={setQuestions}
-//     getDifficultyStyles={getDifficultyStyles}
-//     navigateQuestion={navigateQuestion}
-//     contestId={contestId}
-
-//     */
-
-//   }) => {
-//     const handleSubmit = () => {
-//       try {
-//         // user_id,
-//         // contest_id,
-//         // question_id,
-//         // submitted_at,
-//         // sql_mode,
-//         // user_answer,
-//         // dbType,
-//         // ddl,
-
-//       } catch (err) {
-//         console.log("Something went wrong!!", err);
-//       }
-//     };
-
-//     const [isSubmitting, setIsSubmitting] = useState(false);
-
-//     // sqlQuery,
-//     // setSqlQuery,
-//     // sqlMode,
-//     // setSqlMode,
-
-//     useEffect(() => {
-//       if (!questions || questions.length === 0 || currentQuestion < 1) return;
-
-//       const currentQuestionData = questions[currentQuestion - 1];
-//       if (!currentQuestionData) return;
-//     }, [currentQuestion, questions]);
-
-//     const difficultyIcons = {
-//       easy: <Lightbulb className="w-4 h-4 mr-1" />,
-//       medium: <Code className="w-4 h-4 mr-1" />,
-//       hard: <Sparkles className="w-4 h-4 mr-1" />,
-//     };
-
-//     const currentQ = questions[currentQuestion - 1] || {};
-
-//     return (
-//       <TabsContent value="questions" className="space-y-4">
-//         <div className="flex justify-between items-center mb-4 ">
-//           <div className="flex items-center space-x-4">
-//             <Button
-//               variant="outline"
-//               onClick={() => navigateQuestion("prev")}
-//               disabled={currentQuestion === 1}
-//               className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white"
-//             >
-//               <ChevronLeft className="mr-1" /> Previous
-//             </Button>
-//             <div className="px-4 py-2 bg-red-900/20 rounded-md border border-red-500/30">
-//               Question {currentQuestion} of {questions.length}
-//             </div>
-//             <Button
-//               variant="outline"
-//               onClick={() => navigateQuestion("next")}
-//               disabled={currentQuestion === questions.length}
-//               className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white"
-//             >
-//               Next <ChevronRight className="ml-1" />
-//             </Button>
-//           </div>
-//           <div className="flex items-center space-x-2">
-//             <span className="text-red-300 flex items-center">
-//               <Award className="w-4 h-4 mr-1" />
-//               {questions[currentQuestion - 1]?.points} pts
-//             </span>
-//             <span
-//               className={`px-2 py-1 rounded text-xs font-bold ${getDifficultyStyles(
-//                 questions[currentQuestion - 1]?.difficulty
-//               )}`}
-//             >
-//               {questions[currentQuestion - 1]?.difficulty
-//                 .charAt(0)
-//                 .toUpperCase() +
-//                 questions[currentQuestion - 1]?.difficulty.slice(1) || "None"}
-//             </span>
-//           </div>
-//         </div>
-
-//         {/* Question Card */}
-//         <Card className="bg-black/40 border border-red-500/30">
-//           <CardContent className="p-6">
-//             <div className="flex flex-col gap-5 justify-between items-start">
-//               <div>
-//                 <h3 className="text-xl font-bold mb-2 text-white">
-//                   {questions[currentQuestion - 1]?.questionTitle}
-//                 </h3>
-//                 <p className="text-gray-300">
-//                   {questions[currentQuestion - 1]?.questionDescription}
-//                 </p>
-//               </div>
-//             </div>
-//             <div className="bg-red-900/50 w-full h-1 my-5"></div>
-//             <h4 className="text-lg font-semibold mb-2 text-red-300">
-//               Your Solution
-//             </h4>
-//             <div className="mb-4">
-//               <SqlEditor
-//                 query={sqlQuery}
-//                 setQuery={setSqlQuery}
-//                 sqlMode={sqlMode}
-//                 setSqlMode={setSqlMode}
-//               />
-//             </div>
-
-//             <div className="flex justify-end space-x-4 mt-6">
-//               <Button
-//                 variant="outline"
-//                 onClick={handleRun}
-//                 className="hover:border-red-500/50 text-black hover:bg-red-900/30 hover:text-white"
-//               >
-//                 Run Query
-//               </Button>
-//               <Button
-//                 onClick={handleSubmit}
-//                 disabled={submitted}
-//                 className={`bg-red-900/80 hover:bg-red-800 text-white ${
-//                   submitted ? "opacity-50 cursor-not-allowed" : ""
-//                 }`}
-//               >
-//                 {submitted ? "Submitting..." : "Submit Answer"}
-//               </Button>
-//             </div>
-//           </CardContent>
-//         </Card>
-//       </TabsContent>
-//     );
-//   }
-// );
-
-// export default QuestionsTab;
-
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -204,7 +33,40 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
-import OneCompiler from "@/app/Components/OneCompiler";
+import { toast } from "react-toastify";
+
+const showAcceptedToast = () => {
+  toast.success(`ACCEPTED!`, {
+    position: "top-center",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: false,
+  });
+};
+
+const showWrongAnswerToast = () => {
+  toast.error(`WRONG ANSWER!`, {
+    position: "top-center",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: false,
+  });
+};
+
+const showUnexpectedErrorToast = () => {
+  toast.error(`UNEXPECTED ERROR OCCURRED`, {
+    position: "top-center",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: false,
+  });
+};
 
 const QuestionsTab = React.memo(
   ({
@@ -215,6 +77,8 @@ const QuestionsTab = React.memo(
     navigateQuestion,
     contestId,
     ddl,
+    solvedStatus,
+    setSolvedStatus,
   }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
@@ -225,58 +89,59 @@ const QuestionsTab = React.memo(
     const { data: session, status } = useSession();
     const [copied, setCopied] = useState(false);
 
-    const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
-
     const handleCopy = () => {
-      navigator?.clipboard?.writeText(ddl[sqlMode]).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      });
+      // Check if navigator and clipboard exist
+      if (
+        navigator &&
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
+        // Modern browsers - use Clipboard API
+        navigator.clipboard
+          .writeText(ddl[sqlMode])
+          .then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          })
+          .catch((err) => {
+            console.error("Clipboard write failed: ", err);
+            fallbackCopyToClipboard();
+          });
+      } else {
+        // Fallback for browsers without Clipboard API
+        fallbackCopyToClipboard();
+      }
+
+      // Fallback function using document.execCommand
+      function fallbackCopyToClipboard() {
+        try {
+          const textArea = document.createElement("textarea");
+          textArea.value = ddl[sqlMode];
+
+          // Make the textarea invisible but still part of the document
+          textArea.style.position = "fixed";
+          textArea.style.opacity = "0";
+          document.body.appendChild(textArea);
+
+          // Select and copy
+          textArea.focus();
+          textArea.select();
+
+          const successful = document.execCommand("copy");
+          if (successful) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          } else {
+            console.error("Fallback copy failed");
+          }
+
+          // Clean up
+          document.body.removeChild(textArea);
+        } catch (err) {
+          console.error("Fallback copy failed: ", err);
+        }
+      }
     };
-
-    useEffect(() => {
-      // Function to check if DevTools is open
-      const detectDevTools = () => {
-        if (
-          window.outerWidth - window.innerWidth > 160 ||
-          window.outerHeight - window.innerHeight > 160
-        ) {
-          setIsDevToolsOpen(true);
-        } else {
-          setIsDevToolsOpen(false);
-        }
-      };
-
-      // Block keyboard shortcuts
-      const blockShortcuts = (event) => {
-        if (
-          event.key === "F12" || // DevTools
-          (event.ctrlKey &&
-            event.shiftKey &&
-            ["I", "J", "C"].includes(event.key)) || // Ctrl+Shift+I/J/C
-          (event.ctrlKey && ["U", "L"].includes(event.key.toUpperCase())) || // Ctrl+U (View Source), Ctrl+L
-          (event.altKey && ["ArrowLeft", "ArrowRight"].includes(event.key)) // Alt + Left/Right
-        ) {
-          event.preventDefault();
-        }
-      };
-
-      // Prevent right-click
-      const disableRightClick = (event) => event.preventDefault();
-
-      const devToolsCheckInterval = setInterval(detectDevTools, 1000);
-
-      // document.addEventListener("keydown", blockShortcuts);
-      // document.addEventListener("contextmenu", disableRightClick);
-      // window.addEventListener("resize", detectDevTools); // Recheck when resizing
-
-      return () => {
-        document.removeEventListener("keydown", blockShortcuts);
-        document.removeEventListener("contextmenu", disableRightClick);
-        window.removeEventListener("resize", detectDevTools);
-        clearInterval(devToolsCheckInterval);
-      };
-    }, []);
 
     useEffect(() => {
       if (!questions || questions.length === 0 || currentQuestion < 1) return;
@@ -285,17 +150,20 @@ const QuestionsTab = React.memo(
       if (!currentQuestionData) return;
     }, [currentQuestion, questions]);
 
-    const handleRun = () => {
-      // Placeholder for run query functionality
-      console.log("Running query:", sqlQuery);
-    };
-
     const openSubmitDialog = () => {
       setShowSubmitDialog(true);
       setDialogError("");
     };
 
     const handleSubmit = async () => {
+      if (sqlQuery.split(" ")[0].toLowerCase() != "select") {
+        setDialogError("Only DQL Queries Allowed");
+        return;
+      }
+      if (solvedStatus[questions[currentQuestion - 1].id] == 1) {
+        setDialogError("Already Solved!");
+        return;
+      }
       if (!sqlQuery.trim()) {
         setDialogError("Please enter a SQL query before submitting");
         return;
@@ -322,9 +190,13 @@ const QuestionsTab = React.memo(
 
         let updatedSqlQuery = sqlQuery;
         if (updatedSqlQuery[updatedSqlQuery?.length - 1] == ";") {
-          updatedSqlQuery = updatedSqlQuery?.substr(0, updatedSqlQuery?.length - 1);
+          updatedSqlQuery = updatedSqlQuery?.substr(
+            0,
+            updatedSqlQuery?.length - 1
+          );
         }
 
+        let question_id = questions[currentQuestion - 1]?.id;
         const submissionData = {
           user_id: session.user.id,
           contest_id: contestId,
@@ -335,18 +207,28 @@ const QuestionsTab = React.memo(
           ddl: false,
         };
 
-        // user_id,
-        // contest_id,
-        // question_id,
-        // submitted_at,
-        // sql_mode,
-        // user_answer,
-        // ddl,
-
         console.log(submissionData);
 
         const response = await axios.post("/api/evaluate", submissionData);
         console.log("Submission response:", response.data);
+
+        if (response.data.result.status === "Accepted") {
+          showAcceptedToast();
+          setSolvedStatus((prev) => ({
+            ...prev,
+            question_id: 1,
+          }));
+        } else if (response.data.result.status === "Wrong Answer") {
+          showWrongAnswerToast();
+          if (solvedStatus[question_id == -1]) {
+            setSolvedStatus((prev) => ({
+              ...prev,
+              question_id: 0,
+            }));
+          }
+        } else {
+          showUnexpectedErrorToast();
+        }
 
         setSubmitted(true);
         setShowSubmitDialog(false);
@@ -391,20 +273,33 @@ const QuestionsTab = React.memo(
             </Button>
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-red-300 flex items-center">
-              <Award className="w-4 h-4 mr-1" />
-              {questions[currentQuestion - 1]?.points} pts
-            </span>
-            <span
-              className={`px-2 py-1 rounded text-xs font-bold ${getDifficultyStyles(
-                questions[currentQuestion - 1]?.difficulty
-              )}`}
-            >
-              {questions[currentQuestion - 1]?.difficulty
-                .charAt(0)
-                .toUpperCase() +
-                questions[currentQuestion - 1]?.difficulty.slice(1) || "None"}
-            </span>
+            {solvedStatus[questions[currentQuestion - 1]?.id] == -1 ? (
+              <>
+                <span className="text-red-300 flex items-center">
+                  <Award className="w-4 h-4 mr-1" />
+                  {questions[currentQuestion - 1]?.points} pts
+                </span>
+                <span
+                  className={`px-2 py-1 rounded text-xs font-bold ${getDifficultyStyles(
+                    questions[currentQuestion - 1]?.difficulty
+                  )}`}
+                >
+                  {questions[currentQuestion - 1]?.difficulty
+                    .charAt(0)
+                    .toUpperCase() +
+                    questions[currentQuestion - 1]?.difficulty.slice(1) ||
+                    "None"}
+                </span>
+              </>
+            ) : solvedStatus[questions[currentQuestion - 1]?.id] == 1 ? (
+              <span className="px-3 py-1 text-sm font-semibold text-white bg-green-500 rounded-full shadow-sm">
+                SOLVED
+              </span>
+            ) : (
+              <span className="px-3 py-1 text-sm font-semibold text-white bg-yellow-500 rounded-full shadow-sm">
+                ATTEMPTED
+              </span>
+            )}
           </div>
         </div>
 
@@ -422,53 +317,48 @@ const QuestionsTab = React.memo(
               </div>
             </div>
             <div className="bg-red-900/50 w-full h-1 my-8"></div>
-            <div className="text-lg font-semibold flex gap-3 text-red-300 mb-4">
+            <div className="text-lg font-semibold flex justify-between text-red-300 mb-4">
               <span>Your Solution</span>
-              <Select
-                onValueChange={setSqlMode}
-                value={sqlMode}
-                defaultValue="Select DDL Type"
-              >
-                <SelectTrigger className="w-56 mb-3 bg-black/40 backdrop-blur-lg text-white border focus:border-red-500/50 border-red-500/20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-black/40 backdrop-blur-lg text-white border border-red-500/20">
-                  <SelectItem value="oracle">Oracle SQL</SelectItem>
-                  <SelectItem value="mysql">MySQL</SelectItem>
-                  <SelectItem value="postgresql">PostgreSQL</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                onClick={handleCopy}
-                variant="outline"
-                size="sm"
-                className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white transition w-max"
-              >
-                <ClipboardCopy className="w-4 h-4 mr-1" />
-                {copied ? "Copied!" : `Copy ${sqlMode} DDL`}
-              </Button>
+              <div className="flex gap-4">
+                {" "}
+                <Select
+                  onValueChange={setSqlMode}
+                  value={sqlMode}
+                  defaultValue="Select DDL Type"
+                >
+                  <SelectTrigger className="w-56 mb-3 bg-black/40 backdrop-blur-lg text-white border focus:border-red-500/50 border-red-500/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black/40 backdrop-blur-lg text-white border border-red-500/20">
+                    <SelectItem value="oracle">Oracle SQL</SelectItem>
+                    <SelectItem value="mysql">MySQL</SelectItem>
+                    <SelectItem value="postgresql">PostgreSQL</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={handleCopy}
+                  variant="outline"
+                  size="sm"
+                  className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white transition w-max"
+                >
+                  <ClipboardCopy className="w-4 h-4 mr-1" />
+                  {copied ? "Copied!" : `Copy ${sqlMode} DDL`}
+                </Button>
+              </div>
             </div>
-            {/* <div className="mb-4">
-              <SqlEditor
-                query={sqlQuery}
-                setQuery={setSqlQuery}
-                sqlMode={sqlMode}
-                setSqlMode={setSqlMode}
-              />
-            </div> */}
-
-            {isDevToolsOpen ? (
-              <h1 className="text-red-600 text-2xl font-bold">
-                DevTools detected!!
-              </h1>
-            ) : (
-              <OneCompiler />
-            )}
-
-            <div className="flex justify-end space-x-4 mt-6">
+            <div className="flex justify-start space-x-4">
+              <Button
+                onClick={() => window.open("/user/oneCompiler", "_blank")}
+                className=" bg-blue-600 hover:bg-blue-700 "
+              >
+                Open Compiler
+              </Button>
               <Button
                 onClick={openSubmitDialog}
-                disabled={isSubmitting}
+                disabled={
+                  isSubmitting ||
+                  solvedStatus[questions[currentQuestion - 1]?.id] == 1
+                }
                 className={`bg-red-900/80 hover:bg-red-800 text-white ${
                   isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                 }`}
@@ -521,7 +411,7 @@ const QuestionsTab = React.memo(
                 <textarea
                   id="sql_query"
                   className="w-full h-24 bg-black/60 border border-red-500/30 rounded p-2 text-white"
-                  placeholder="Enter DDL statements (optional)"
+                  placeholder="Enter your SQL Query here. . . ."
                   value={sqlQuery}
                   onChange={(e) => setSqlQuery(e.target.value)}
                 />

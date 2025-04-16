@@ -51,7 +51,6 @@ const ContestTabs = ({ contests, handleContestCardClick, loading }) => {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [searchQuery, setSearchQuery] = useState("");
 
-
   return (
     <div className="w-full max-w-3xl mx-auto mt-8">
       {/* Search Bar */}
@@ -401,9 +400,10 @@ export default function UserDashboard() {
     if (
       selectedContest.password == "" ||
       selectedContest.password == contestPass
-    )
+    ) {
       router.push(`/user/dashboard/contestPage/${selectedContest.id}`);
-    else setWrongPassError(true);
+      localStorage.setItem(`contest_access_${selectedContest.id}`, "true");
+    } else setWrongPassError(true);
   };
 
   return (

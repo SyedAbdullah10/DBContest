@@ -12,7 +12,7 @@ const OneCompiler = () => {
         ref={iframeRef}
         src={compilerURL}
         width="100%"
-        height="600px"
+        height="1000px"
         sandbox="allow-scripts allow-same-origin allow-forms"
       ></iframe>
     </div>

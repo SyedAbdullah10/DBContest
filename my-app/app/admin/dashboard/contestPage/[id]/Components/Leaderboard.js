@@ -555,7 +555,7 @@ const Leaderboard = ({ contestId }) => {
     if (contestId) {
       fetchLeaderboardData();
     }
-    
+
     const channel = supabase
       .channel("table-updates")
       .on(
@@ -829,13 +829,15 @@ const Leaderboard = ({ contestId }) => {
                           // Count wrong submissions
                           const wrongSubmissions = questionData.wrongAnswers;
 
-                          if (wrongSubmissions > 0) {
-                            timeDisplay += ` | (-${wrongSubmissions})`;
-                            status = "solved-penalty";
-                          } else {
+                          if (wrongSubmissions == 0) {
                             status = questionData.firstSolve
                               ? "solved-highlight"
                               : "solved";
+                          } else {
+                            timeDisplay += ` | (-${wrongSubmissions})`;
+                            if (questionData.firstSolve) {
+                              status = "solved-highlight";
+                            } else status = "solved-penalty";
                           }
                         } else {
                           // If there are only wrong submissions

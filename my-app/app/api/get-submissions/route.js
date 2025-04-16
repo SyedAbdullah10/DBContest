@@ -5,11 +5,11 @@ export async function POST(req) {
   const { user_id, contest_id } = await req.json();
 
   console.log(user_id, contest_id);
-  
 
   const { data, error } = await supabase
     .from("Submissions")
-    .select(`
+    .select(
+      `
       user_id,
       contest_id,
       question_id,
@@ -23,13 +23,18 @@ export async function POST(req) {
         questionNumber,
         difficulty
       )
-    `)
+    `
+    )
     .eq("user_id", user_id)
-    .eq("contest_id", contest_id);
+    .eq("contest_id", contest_id)
+    .order("status", { ascending: true })
 
   if (error) {
     console.error("Error fetching submissions:", error);
-    return NextResponse.json({ success: false, error: "Failed to fetch submissions." }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch submissions." },
+      { status: 400 }
+    );
   }
 
   const submissions = data.map((sub) => ({
@@ -43,7 +48,7 @@ export async function POST(req) {
     points: sub.Questions?.points,
     questionNumber: sub.Questions?.questionNumber,
     difficulty: sub.Questions?.difficulty,
-    questionTitle: sub.Questions?.questionTitle
+    questionTitle: sub.Questions?.questionTitle,
   }));
 
   return NextResponse.json({ success: true, submissions });

@@ -284,7 +284,12 @@ import {
 } from "@/components/ui/select";
 import supabase from "@/supabaseClient";
 
-const StatusTab = ({ contestId, getDifficultyStyles }) => {
+const StatusTab = ({
+  contestId,
+  getDifficultyStyles,
+  solvedStatus,
+  setSolvedStatus,
+}) => {
   const { data: session, status } = useSession();
   const [submissions, setSubmissions] = useState([]);
   const [allSubmissions, setAllSubmissions] = useState([]);
@@ -292,6 +297,8 @@ const StatusTab = ({ contestId, getDifficultyStyles }) => {
   const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
+    console.log("Status Tab rendered!");
+
     if (status === "authenticated" && session?.user?.id) {
       const fetchSubmissions = async () => {
         try {
@@ -302,6 +309,23 @@ const StatusTab = ({ contestId, getDifficultyStyles }) => {
 
           setAllSubmissions(response.data.submissions || []);
           setSubmissions(response.data.submissions || []);
+          const updatedStatus = solvedStatus;
+          console.log(updatedStatus);
+          
+          (response.data.submissions || []).forEach((submission) => {
+            const qid = submission.question_id;
+            const status = submission.status;
+            
+            if (status === "Accepted") {
+              updatedStatus[qid] = 1; // Always mark as true if Accepted
+            } else if (status === "Wrong Answer") {
+              if (updatedStatus[qid] !== 1) {
+                updatedStatus[qid] = 0; // Only set false if not already true
+              }
+            }
+          });
+          // console.log(updatedStatus);
+          setSolvedStatus(updatedStatus);
         } catch (err) {
           console.error("Error fetching submissions", err);
         } finally {

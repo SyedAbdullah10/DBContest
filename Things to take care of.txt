@@ -1,9 +1,3 @@
-status notification
-questions cannot be submitted after accepted
-leaderboard first solve issue
-Copy DDL issue
 Time issue
 submissions should be closed after the contest ended
-used leaderboard issue
 user should not be able to submit after the contest ended
-Only select statements are allowed on user side

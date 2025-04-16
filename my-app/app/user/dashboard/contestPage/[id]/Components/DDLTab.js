@@ -55,42 +55,66 @@ const DDLTab = ({
     setHighlightedCode(highlighted);
   }, [ddl, sqlMode]);
 
+  // const handleCopy = () => {
+  //   navigator.clipboard.writeText(ddl.mysql).then(() => {
+  //     setCopied(true);
+  //     setTimeout(() => setCopied(false), 1500);
+  //   });
+  // };
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(ddl.mysql).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
+    // Check if navigator and clipboard exist
+    if (
+      navigator &&
+      navigator.clipboard &&
+      typeof navigator.clipboard.writeText === "function"
+    ) {
+      // Modern browsers - use Clipboard API
+      navigator.clipboard
+        .writeText(ddl.sqlMode)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        })
+        .catch((err) => {
+          console.error("Clipboard write failed: ", err);
+          fallbackCopyToClipboard();
+        });
+    } else {
+      // Fallback for browsers without Clipboard API
+      fallbackCopyToClipboard();
+    }
+
+    // Fallback function using document.execCommand
+    function fallbackCopyToClipboard() {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = ddl[sqlMode];
+
+        // Make the textarea invisible but still part of the document
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+
+        // Select and copy
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand("copy");
+        if (successful) {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        } else {
+          console.error("Fallback copy failed");
+        }
+
+        // Clean up
+        document.body.removeChild(textArea);
+      } catch (err) {
+        console.error("Fallback copy failed: ", err);
+      }
+    }
   };
-
-  // const handleEditClick = () => {
-  //   setEditedDdl(ddl[sqlMode]);
-  //   setIsEditDialogOpen(true);
-  // };
-
-  // const handleSaveEdit = async () => {
-  //   try {
-  //     const ddlKey = sqlMode + "_ddl"; // e.g., mysql_ddl
-
-  //     const res = await axios.put(`/api/contest-info/${contestId}/ddl`, {
-  //       ddlType: ddlKey,
-  //       ddl: editedDdl,
-  //     });
-
-  //     // Update only the specific DDL key in state
-  //     setDdl((prev) => ({
-  //       ...prev,
-  //       [ddlKey]: editedDdl,
-  //     }));
-
-  //     setIsEditDialogOpen(false);
-  //     showEditedToast();
-  //   } catch (error) {
-  //     console.error("Error updating DDL:", error);
-  //     showErrorToast();
-  //   }
-  // };
-
-  // console.log(ddl);
 
   return (
     <TabsContent value="ddl">

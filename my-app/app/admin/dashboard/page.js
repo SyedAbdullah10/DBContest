@@ -384,9 +384,10 @@ const AdminDashboard = () => {
     if (
       selectedContest.password == "" ||
       selectedContest.password == contestPass
-    )
+    ) {
       router.push(`/admin/dashboard/contestPage/${selectedContest.id}`);
-    else setWrongPassError(true);
+      localStorage.setItem(`contest_access_${selectedContest.id}`, "true");
+    } else setWrongPassError(true);
   };
 
   if (status === "loading") {

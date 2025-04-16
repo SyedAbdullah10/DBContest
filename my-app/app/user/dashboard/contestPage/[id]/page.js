@@ -366,10 +366,9 @@ import { useRouter } from "next/navigation";
 
 const ContestPage = () => {
   const { data: session, status } = useSession();
-  if (!session || session.user.role !== "user") {
-    return redirect("/user");
-  }
-
+  const router = useRouter();
+  const params = useParams();
+  const [contestId, setContestId] = useState(params.id);
   const [timeLeft, setTimeLeft] = useState({
     hours: 0,
     minutes: 0,
@@ -377,17 +376,92 @@ const ContestPage = () => {
   });
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [contestInfo, setContestInfo] = useState({});
-  const params = useParams(); // returns an object of dynamic params
-  const [contestId, setContestId] = useState(params.id);
   const [contestStatus, setContestStatus] = useState("upcoming"); // upcoming, ongoing, ended
-  const [loading, setLoading] = useState(true); // Loading state for API data
-
-  // States for timer edit dialog
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [solvedStatus, setSolvedStatus] = useState({});
+  const dataFetchedRef = useRef(false);
 
   // Mock questions for the contest
   const [questions, setQuestions] = useState([]);
+
+  // ... other state declarations remain the same
+
+  useEffect(() => {
+    // Check if user is logged in first
+    if (status === "loading") return;
+
+    if (!session || session.user.role !== "user") {
+      router.push("/user"); // Redirect to login if not authenticated
+      return;
+    }
+
+    const fetchContestData = async () => {
+      if (dataFetchedRef.current) return;
+      setLoading(true);
+
+      // First check if user has access to this contest
+      const hasContestAccess = localStorage.getItem(
+        `contest_access_${contestId}`
+      );
+
+      if (!hasContestAccess) {
+        console.log("No contest access found, redirecting...");
+        router.push("/user/dashboard");
+        return;
+      }
+
+      try {
+        const response = await axios.get(`/api/contest-info/${contestId}`);
+        setContestInfo(response.data.contest);
+        setQuestions(response.data.questions);
+
+        console.log(response);
+
+        let tmpSolvedStatus = {};
+        for (let i = 0; i < response.data.questions.length; i++) {
+          tmpSolvedStatus[response.data.questions[i].id] = -1;
+        }
+        setSolvedStatus(tmpSolvedStatus);
+
+        const start = parseDateTime(response.data.contest.startTime);
+        const end = parseDateTime(response.data.contest.endTime);
+        // console.log(start, end);
+
+        const now = new Date();
+
+        // Set contest status
+        let diffInSeconds = 0;
+
+        if (now < start) {
+          setContestStatus("upcoming");
+          diffInSeconds = end >= now ? Math.floor((start - now) / 1000) : 0;
+        } else if (now >= start && now <= end) {
+          setContestStatus("ongoing");
+          diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
+        } else {
+          setContestStatus("ended");
+        }
+
+        const hours = end >= now ? Math.floor(diffInSeconds / 3600) : 0;
+        const minutes =
+          end >= now ? Math.floor((diffInSeconds % 3600) / 60) : 0;
+        const seconds = end >= now ? diffInSeconds % 60 : 0;
+
+        setTimeLeft({ hours, minutes, seconds });
+        dataFetchedRef.current = true;
+
+        // Rest of your contest data handling code
+        // ...
+      } catch (err) {
+        console.error("Error fetching contest data:", err);
+        // Handle errors appropriately
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContestData();
+  }, [contestId, router, session, status]);
 
   const parseDateTime = (datetimeStr) => {
     // Split "Month Date, Year | HH:MM:SS AM/PM"
@@ -409,54 +483,6 @@ const ContestPage = () => {
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
-
-  useEffect(() => {
-    const fetchContestData = async () => {
-      setLoading(true); // Start loading
-      try {
-        const response = await axios.get(`/api/contest-info/${contestId}`);
-        console.log(response);
-
-        const data = response.data;
-        setContestInfo(data.contest);
-        setQuestions(data.questions);
-        console.log(contestInfo);
-        console.log(questions);
-
-        const start = parseDateTime(data.contest.startTime);
-        const end = parseDateTime(data.contest.endTime);
-        // console.log(start, end);
-
-        const now = new Date();
-
-        let diffInSeconds = 0;
-
-        if (now < start) {
-          setContestStatus("upcoming");
-          diffInSeconds = end >= now ? Math.floor((start - now) / 1000) : 0;
-        } else if (now >= start && now <= end) {
-          setContestStatus("ongoing");
-          diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
-        } else {
-          setContestStatus("ended");
-        }
-
-        const hours = end >= now ? Math.floor(diffInSeconds / 3600) : 0;
-        const minutes =
-          end >= now ? Math.floor((diffInSeconds % 3600) / 60) : 0;
-        const seconds = end >= now ? diffInSeconds % 60 : 0;
-
-        setTimeLeft({ hours, minutes, seconds });
-        // console.log(timeLeft);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false); // End loading regardless of outcome
-      }
-    };
-
-    fetchContestData();
-  }, [contestId]);
 
   // Timer countdown effect
   useEffect(() => {
@@ -563,7 +589,7 @@ const ContestPage = () => {
   return (
     <div className="min-h-screen text-white w-full">
       {/* Header with logo and contest info */}
-      <header className="bg-red-900/30 border-b border-red-500/30 p-4">
+      <header className="bg-red-900/30 border-b border-red-500/30 p-4 mb-4">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 flex items-center justify-center">
@@ -683,10 +709,14 @@ const ContestPage = () => {
                 mysql: contestInfo.mysql_ddl,
                 postgresql: contestInfo.postgresql_ddl,
               }}
+              solvedStatus={solvedStatus}
+              setSolvedStatus={setSolvedStatus}
             />
             <StatusTab
               contestId={contestId}
               getDifficultyStyles={getDifficultyStyles}
+              solvedStatus={solvedStatus}
+              setSolvedStatus={setSolvedStatus}
             />
             <Leaderboard contestId={contestId} />
             <DDLTab
