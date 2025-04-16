@@ -427,10 +427,30 @@ const ContestPage = () => {
         const end = parseDateTime(response.data.contest.endTime);
         // console.log(start, end);
 
-        const now = new Date();
+        let now = null;
+
+        try {
+          const date_response = await axios.get("/api/get-current-datetime");
+          console.log(date_response);
+          now = date_response.data.now;
+        } catch (err) {
+          if (now == null) {
+            setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+            return;
+          }
+          console.error("Error", err);
+        }
 
         // Set contest status
         let diffInSeconds = 0;
+
+        console.log(new Date());
+
+        // console.log(now);
+
+        now = new Date(now);
+
+        console.log(now, start, end);
 
         if (now < start) {
           setContestStatus("upcoming");

@@ -260,18 +260,18 @@ const QuestionsTab = React.memo(
               disabled={currentQuestion === 1}
               className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white"
             >
-              <ChevronLeft className="mr-1" /> Previous
+              <ChevronLeft className="mr-1" /> 
             </Button>
-            <div className="px-4 py-2 bg-red-900/20 rounded-md border border-red-500/30">
+            {/*<div className="px-4 py-2 bg-red-900/20 rounded-md border border-red-500/30">
               Question {currentQuestion} of {questions.length}
-            </div>
+            </div>*/ }
             <Button
               variant="outline"
               onClick={() => navigateQuestion("next")}
               disabled={currentQuestion === questions.length}
               className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white"
             >
-              Next <ChevronRight className="ml-1" />
+               <ChevronRight className="ml-1" />
             </Button>
           </div>
           <div className="flex items-center space-x-2">
