@@ -3,7 +3,7 @@ import pool from "@/mysqlpool";
 import oracle_pool from "@/oracleDbPool";
 
 export async function POST(req) {
-  const { query, sql_mode, ddl } = await req.json(); // Get query, database type, and DDL flag
+  let { query, sql_mode, ddl } = await req.json(); // Get query, database type, and DDL flag
   console.log("Received query:", query);
   console.log("Database type:", sql_mode);
   console.log("DDL flag:", ddl);
@@ -19,7 +19,7 @@ export async function POST(req) {
     if (sql_mode === "postgres") {
       result = [];
       for (let i = 0; i < queries.length; i++) {
-        const execute_query = queries[i].trim();
+        let execute_query = queries[i].trim();
         query = execute_query;
         const { data, error } = await supabase.rpc("sql_exec", {
           query,

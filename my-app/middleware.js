@@ -84,12 +84,12 @@ export async function middleware(req) {
   ];
 
   // Check API access
-  const matchedApi = apiAccess.find(route => route.path.test(pathname));
-  if (matchedApi) {
-    if (!token || !matchedApi.roles.includes(token.role)) {
-      return new NextResponse("Unauthorized", { status: 403 });
-    }
-  }
+  // const matchedApi = apiAccess.find(route => route.path.test(pathname));
+  // if (matchedApi) {
+  //   if (!token || !matchedApi.roles.includes(token.role)) {
+  //     return new NextResponse("Unauthorized", { status: 403 });
+  //   }
+  // }
 
   // Page-based route protection
   if (pathname === "/admin" || pathname === "/user") {
@@ -119,6 +119,6 @@ export const config = {
     "/admin/dashboard",
     "/user",
     "/user/dashboard",
-    "/api/:path*"
+    // "/api/:path*"
   ]
 };

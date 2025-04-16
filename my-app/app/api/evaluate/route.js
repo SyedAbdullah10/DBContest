@@ -15,7 +15,7 @@ export async function POST(req) {
     } = await req.json();
 
     // Step 1: Fetch correct actual_answer
-    const questionRes = await fetch(
+    let questionRes = await fetch(
       `http://localhost:3000/api/get-question-answer`,
       {
         method: "POST",
@@ -24,7 +24,7 @@ export async function POST(req) {
       }
     );
 
-    const res = await questionRes.json();
+    let res = await questionRes.json();
     console.log(res);
     let actual_answer = res.answer;
     if (!res.success) {
@@ -35,7 +35,7 @@ export async function POST(req) {
     }
 
     // Step 3: Execute user query
-    const userRes = await fetch(
+    let userRes = await fetch(
       `http://localhost:3000/api/execute-participant`,
       {
         method: "POST",
@@ -44,7 +44,7 @@ export async function POST(req) {
       }
     );
 
-    const userData = await userRes.json();
+    let userData = await userRes.json();
     if (!userData.success) {
       return NextResponse.json(
         {
@@ -88,7 +88,7 @@ export async function POST(req) {
     // const isCorrect = JSON.stringify(actual_answer) === JSON.stringify(userData.data);
     // const isCorrect = actual_answer === user_csv_ans;
     // const isCorrect = true;
-    const status = isCorrect ? "Accepted" : "Wrong Answer";
+    let status = isCorrect ? "Accepted" : "Wrong Answer";
 
     // console.log(JSON.stringify(actual_answer));
     // console.log(JSON.stringify(userData.data));
