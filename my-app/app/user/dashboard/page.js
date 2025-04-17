@@ -331,6 +331,9 @@ export default function UserDashboard() {
     },
   });
 
+  // console.log(session);
+  
+
   const [contests, setContests] = useState({
     ongoing: [],
     upcoming: [],

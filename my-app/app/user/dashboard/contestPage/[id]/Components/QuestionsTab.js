@@ -199,8 +199,10 @@ const QuestionsTab = React.memo(
         let question_id = questions[currentQuestion - 1]?.id;
         const submissionData = {
           user_id: session.user.id,
+          username: session.user.username,
           contest_id: contestId,
           question_id: questions[currentQuestion - 1]?.id,
+          questionNumber: questions[currentQuestion - 1]?.questionNumber,
           submitted_at: formattedSubmittedAt,
           sql_mode: sqlMode,
           user_answer: updatedSqlQuery,

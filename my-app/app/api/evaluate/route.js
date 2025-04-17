@@ -1,18 +1,24 @@
 // app/api/evaluate/route.js
 import { NextResponse } from "next/server";
 import supabase from "@/supabaseClient";
+const fs = require("fs");
 
 export async function POST(req) {
   try {
     const {
       user_id,
+      username,
       contest_id,
       question_id,
+      questionNumber,
       submitted_at,
       sql_mode,
       user_answer,
       ddl,
     } = await req.json();
+
+    // console.log("here");
+    
 
     // Step 1: Fetch correct actual_answer
     let questionRes = await fetch(
@@ -35,14 +41,11 @@ export async function POST(req) {
     }
 
     // Step 3: Execute user query
-    let userRes = await fetch(
-      `http://localhost:3000/api/execute-participant`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: user_answer, sql_mode, ddl }),
-      }
-    );
+    let userRes = await fetch(`http://localhost:3000/api/execute-participant`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: user_answer, sql_mode, ddl }),
+    });
 
     let userData = await userRes.json();
     if (!userData.success) {
@@ -58,14 +61,19 @@ export async function POST(req) {
 
     let user_actual_answer = userData.data;
 
+    let tmp_actual_answer = actual_answer;
+    let tmp_user_csv_ans = [];
     let user_csv_ans = [];
     for (let i = 0; i < user_actual_answer.length; i++) {
       let row = user_actual_answer[i];
       user_csv_ans.push(Object.values(row).join(",").trim());
+      tmp_user_csv_ans.push(Object.values(row).join(",").trim() + "\n");
     }
 
-    actual_answer = actual_answer.trim().split("\n").map(line => line.trim());
-
+    actual_answer = actual_answer
+      .trim()
+      .split("\n")
+      .map((line) => line.trim());
 
     let isCorrect = true;
 
@@ -80,9 +88,9 @@ export async function POST(req) {
       }
     }
 
-    console.log(userData.data);
-    console.log("ACTUAL ANSWER: ", actual_answer);
-    console.log("ACTUAL USER QUERY ANSWER: ", user_csv_ans);
+    // console.log(userData.data);
+    // console.log("ACTUAL ANSWER: ", actual_answer);
+    // console.log("ACTUAL USER QUERY ANSWER: ", user_csv_ans);
 
     // Step 4: Compare
     // const isCorrect = JSON.stringify(actual_answer) === JSON.stringify(userData.data);
@@ -116,6 +124,13 @@ export async function POST(req) {
         { status: 500 }
       );
     }
+
+    // maintain Log
+    const logMessage = `====================================================================================================================================================================================\n${username} | ${questionNumber} | ${status} | ${sql_mode} | ${submitted_at}\n${tmp_user_csv_ans}\n${tmp_actual_answer}\n====================================================================================================================================================================================\n\n
+    `;
+    fs.appendFile(`${contest_id}.txt`, logMessage, "utf8", (err) => {
+      if (err) console.error("Error writing to log:", err);
+    });
 
     // Step 6: Return result
     return NextResponse.json({
