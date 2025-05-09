@@ -456,17 +456,17 @@ const UserLogin = () => {
                               <span className="text-green-300">
                                 Start Date:
                               </span>
-                              <span>2024-03-15</span>
+                              <span>2024-04-17</span>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <span className="text-green-300">Duration:</span>
-                              <span>48 hours</span>
+                              <span>2 hours</span>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <span className="text-green-300">
                                 Participants:
                               </span>
-                              <span>1000+</span>
+                              <span>44</span>
                             </div>
                             <div className="mt-4 text-white/80">
                               <span className="text-green-300">

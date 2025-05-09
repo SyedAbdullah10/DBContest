@@ -209,10 +209,10 @@ const QuestionsTab = React.memo(
           ddl: false,
         };
 
-        console.log(submissionData);
+        // console.log(submissionData);
 
         const response = await axios.post("/api/evaluate", submissionData);
-        console.log("Submission response:", response.data);
+        // console.log("Submission response:", response.data);
 
         if (response.data.result.status === "Accepted") {
           showAcceptedToast();
@@ -260,18 +260,22 @@ const QuestionsTab = React.memo(
               disabled={currentQuestion === 1}
               className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white"
             >
-              <ChevronLeft className="mr-1" /> 
+              <ChevronLeft className="mr-1" />
             </Button>
             {/*<div className="px-4 py-2 bg-red-900/20 rounded-md border border-red-500/30">
               Question {currentQuestion} of {questions.length}
-            </div>*/ }
+            </div>*/}
+            <div className="px-4 py-2 bg-red-900/20 rounded-md border border-red-500/30">
+              Total Questions: {questions.length}
+            </div>
+            
             <Button
               variant="outline"
               onClick={() => navigateQuestion("next")}
               disabled={currentQuestion === questions.length}
               className="hover:border-red-500/50 bg-white text-black hover:bg-red-900/30 hover:text-white"
             >
-               <ChevronRight className="ml-1" />
+              <ChevronRight className="ml-1" />
             </Button>
           </div>
           <div className="flex items-center space-x-2">

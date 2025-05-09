@@ -1,333 +1,3 @@
-// "use client";
-
-// import React, { useState, useEffect, useRef } from "react";
-// import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import {
-//   Clock,
-//   FileQuestion,
-//   Activity,
-//   Database,
-//   Eye,
-//   Edit,
-//   X,
-// } from "lucide-react";
-// import Logo from "@/app/Components/Logo";
-// import QuestionsTab from "./Components/QuestionsTab";
-// import DDLTab from "./Components/DDLTab";
-// import VisualSchemaTab from "./Components/VisualSchemaTab";
-// import Leaderboard from "./Components/Leaderboard";
-// import StatusTab from "./Components/StatusTab";
-// import { useParams } from "next/navigation";
-// import axios from "axios";
-// import { Button } from "@/components/ui/button";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogFooter,
-// } from "@/components/ui/dialog";
-// import { Input } from "@/components/ui/input";
-// import { showTimerUpdatedToast } from "@/app/Components/Dumped/utils/toast";
-
-// const ContestPage = () => {
-//   const [timeLeft, setTimeLeft] = useState({
-//     hours: 0,
-//     minutes: 0,
-//     seconds: 0,
-//   });
-//   const [currentQuestion, setCurrentQuestion] = useState(1);
-//   const [contestInfo, setContestInfo] = useState({});
-//   const params = useParams(); // returns an object of dynamic params
-//   const [contestId, setContestId] = useState(params.id);
-//   const [contestStatus, setContestStatus] = useState("upcoming"); // upcoming, ongoing, ended
-
-//   // States for timer edit dialog
-//   const [showEditDialog, setShowEditDialog] = useState(false);
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-
-//   // Mock questions for the contest
-//   const [questions, setQuestions] = useState([]);
-
-//   const parseDateTime = (datetimeStr) => {
-//     // Split "Month Date, Year | HH:MM:SS AM/PM"
-//     if (!datetimeStr) return new Date();
-//     const [datePart, timePart] = datetimeStr.split(" | ");
-//     // Combine and parse
-//     return new Date(`${datePart} ${timePart}`);
-//   };
-
-//   const formatDateTimeForInput = (dateObj) => {
-//     if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj)) return "";
-
-//     // Format date for datetime-local input (YYYY-MM-DDTHH:MM)
-//     const year = dateObj.getFullYear();
-//     const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-//     const day = String(dateObj.getDate()).padStart(2, "0");
-//     const hours = String(dateObj.getHours()).padStart(2, "0");
-//     const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-
-//     return `${year}-${month}-${day}T${hours}:${minutes}`;
-//   };
-
-//   useEffect(() => {
-//     const fetchContestData = async () => {
-//       try {
-//         const response = await axios.get(`/api/contest-info/${contestId}`);
-//         console.log(response);
-
-//         const data = response.data;
-//         setContestInfo(data.contest);
-//         setQuestions(data.questions);
-//         console.log(contestInfo);
-//         console.log(questions);
-
-//         const start = parseDateTime(data.contest.startTime);
-//         const end = parseDateTime(data.contest.endTime);
-//         // console.log(start, end);
-
-//         const now = new Date();
-
-//         // Set contest status
-//         if (now < start) {
-//           setContestStatus("upcoming");
-//         } else if (now >= start && now <= end) {
-//           setContestStatus("ongoing");
-//         } else {
-//           setContestStatus("ended");
-//         }
-
-//         const diffInSeconds = end >= now ? Math.floor((end - now) / 1000) : 0;
-//         const hours = end >= now ? Math.floor(diffInSeconds / 3600) : 0;
-//         const minutes =
-//           end >= now ? Math.floor((diffInSeconds % 3600) / 60) : 0;
-//         const seconds = end >= now ? diffInSeconds % 60 : 0;
-
-//         setTimeLeft({ hours, minutes, seconds });
-//         // console.log(timeLeft);
-//       } catch (err) {
-//         console.error(err);
-//       }
-//     };
-
-//     fetchContestData();
-//   }, [contestId]);
-
-//   // Timer countdown effect
-//   useEffect(() => {
-//     const timer = setInterval(() => {
-//       setTimeLeft((prev) => {
-//         if (prev.hours === 0 && prev.minutes === 0 && prev.seconds === 0) {
-//           clearInterval(timer);
-//           if (contestStatus === "ongoing") {
-//             setContestStatus("ended");
-//           }
-//           return prev;
-//         }
-
-//         let newHours = prev.hours;
-//         let newMinutes = prev.minutes;
-//         let newSeconds = prev.seconds - 1;
-
-//         if (newSeconds < 0) {
-//           newSeconds = 59;
-//           newMinutes -= 1;
-//         }
-
-//         if (newMinutes < 0) {
-//           newMinutes = 59;
-//           newHours -= 1;
-//         }
-
-//         return { hours: newHours, minutes: newMinutes, seconds: newSeconds };
-//       });
-//     }, 1000);
-
-//     return () => clearInterval(timer);
-//   }, [timeLeft, contestStatus]);
-
-//   // Format time with leading zeros
-//   const formatTime = (val) => val.toString().padStart(2, "0");
-
-//   const navigateQuestion = (direction) => {
-//     if (direction === "next" && currentQuestion < questions.length) {
-//       setCurrentQuestion(currentQuestion + 1);
-//     } else if (direction === "prev" && currentQuestion > 1) {
-//       setCurrentQuestion(currentQuestion - 1);
-//     }
-//   };
-
-//   // Get difficulty styling
-//   const getDifficultyStyles = (difficulty) => {
-//     // difficulty[0] -= 32;
-//     difficulty = difficulty?.charAt(0).toUpperCase() + difficulty?.slice(1);
-//     switch (difficulty) {
-//       case "Easy":
-//         return "bg-green-500/30 text-green-200";
-//       case "Medium":
-//         return "bg-yellow-500/30 text-yellow-200";
-//       case "Hard":
-//         return "bg-red-500/30 text-red-200";
-//       case "PostgreSQL":
-//         return "bg-red-500/30 text-red-200";
-//       case "MySQL":
-//         return "bg-red-500/30 text-red-200";
-//       case "Oracle":
-//         return "bg-red-500/30 text-red-200";
-//       default:
-//         return "bg-gray-500/30 text-gray-200";
-//     }
-//   };
-
-//   // Convert datetime-local value back to the original pipe format
-//   const formatDateTimeForAPI = (datetimeLocalValue) => {
-//     if (!datetimeLocalValue) return "";
-
-//     const dateObj = new Date(datetimeLocalValue);
-
-//     // Format: "Month Date, Year | HH:MM:SS AM/PM"
-//     const months = [
-//       "January",
-//       "February",
-//       "March",
-//       "April",
-//       "May",
-//       "June",
-//       "July",
-//       "August",
-//       "September",
-//       "October",
-//       "November",
-//       "December",
-//     ];
-//     const month = months[dateObj.getMonth()];
-//     const date = dateObj.getDate();
-//     const year = dateObj.getFullYear();
-
-//     let hours = dateObj.getHours();
-//     const ampm = hours >= 12 ? "PM" : "AM";
-//     hours = hours % 12;
-//     hours = hours ? hours : 12; // the hour '0' should be '12'
-
-//     const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-//     const seconds = String(dateObj.getSeconds()).padStart(2, "0");
-
-//     return `${month} ${date}, ${year} | ${hours}:${minutes}:${seconds} ${ampm}`;
-//   };
-
-//   return (
-//     <div className="min-h-screen text-white">
-//       {/* Header with logo and contest info */}
-//       <header className="bg-red-900/30 border-b border-red-500/30 p-4">
-//         <div className="container mx-auto flex justify-between items-center">
-//           <div className="flex items-center space-x-3">
-//             <div className="w-12 h-12 flex items-center justify-center">
-//               {/* <Database className="w-8 h-8" /> */}
-//               <Logo extraClasses="h-12 w-12" />
-//             </div>
-//             <div>
-//               {/* <h1 className="text-2xl font-bold">SQL Masters Challenge</h1> */}
-//               <h1 className="text-2xl font-bold">{contestInfo.name}</h1>
-//               <p className="text-red-300">Database Contest - Advanced Level</p>
-//             </div>
-//           </div>
-
-//           <div className="flex items-center space-x-2">
-//             <div className="flex flex-col items-end">
-//               <div className="flex items-center space-x-2 text-red-200">
-//                 <Clock className="w-5 h-5" />
-//                 <span className="text-xl font-mono">
-//                   {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:
-//                   {formatTime(timeLeft.seconds)}
-//                 </span>
-//               </div>
-//               <div className="text-sm text-red-300">
-//                 {contestStatus === "ongoing"
-//                   ? "Time Remaining"
-//                   : contestStatus === "ended"
-//                   ? "Ended"
-//                   : "Starts In"}
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </header>
-
-//       <main className="container mx-auto p-4">
-//         <Tabs defaultValue="questions" className="w-full">
-//           <TabsList className="text-white bg-red-500/20 border border-red-500/30 p-1 mb-6">
-//             <TabsTrigger
-//               value="questions"
-//               className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-//             >
-//               <FileQuestion className="w-4 h-4 mr-2" />
-//               Questions
-//             </TabsTrigger>
-//             <TabsTrigger
-//               value="status"
-//               className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-//             >
-//               <Eye className="w-4 h-4 mr-2" />
-//               Status
-//             </TabsTrigger>
-//             <TabsTrigger
-//               value="leaderboard"
-//               className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-//             >
-//               <Eye className="w-4 h-4 mr-2" />
-//               Leaderboard
-//             </TabsTrigger>
-//             <TabsTrigger
-//               value="ddl"
-//               className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-//             >
-//               <Database className="w-4 h-4 mr-2" />
-//               DDL Statements
-//             </TabsTrigger>
-//             <TabsTrigger
-//               value="schema"
-//               className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
-//             >
-//               <Eye className="w-4 h-4 mr-2" />
-//               Visualize Schema
-//             </TabsTrigger>
-//           </TabsList>
-
-//           <QuestionsTab
-//             currentQuestion={currentQuestion}
-//             questions={questions}
-//             setQuestions={setQuestions}
-//             getDifficultyStyles={getDifficultyStyles}
-//             navigateQuestion={navigateQuestion}
-//             contestId={contestId}
-//           />
-
-//           <StatusTab
-//             contestId={contestId}
-//             getDifficultyStyles={getDifficultyStyles}
-//           />
-
-//           <Leaderboard contestId={contestId} />
-
-//           <DDLTab
-//             ddl={{
-//               oracle: contestInfo.oracle_ddl,
-//               mysql: contestInfo.mysql_ddl,
-//               postgresql: contestInfo.postgresql_ddl,
-//             }}
-//             contestId={contestId}
-//             setDdl={setContestInfo}
-//           />
-
-//           <VisualSchemaTab schema={{}} />
-//         </Tabs>
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default ContestPage;
-
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -384,6 +54,53 @@ const ContestPage = () => {
   // Mock questions for the contest
   const [questions, setQuestions] = useState([]);
 
+  const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
+  useEffect(() => {
+    console.log("Question Tab rendered!");
+
+    // Function to check if DevTools is open
+    const detectDevTools = () => {
+      if (
+        window.outerWidth - window.innerWidth > 160 ||
+        window.outerHeight - window.innerHeight > 160
+      ) {
+        setIsDevToolsOpen(true);
+      } else {
+        setIsDevToolsOpen(false);
+      }
+    };
+
+    // Block keyboard shortcuts
+    const blockShortcuts = (event) => {
+      if (
+        event.key === "F12" || // DevTools
+        (event.ctrlKey &&
+          event.shiftKey &&
+          ["I", "J", "C"].includes(event.key)) || // Ctrl+Shift+I/J/C
+        (event.ctrlKey && ["U", "L"].includes(event.key.toUpperCase())) || // Ctrl+U (View Source), Ctrl+L
+        (event.altKey && ["ArrowLeft", "ArrowRight"].includes(event.key)) // Alt + Left/Right
+      ) {
+        event.preventDefault();
+      }
+    };
+
+    // Prevent right-click
+    const disableRightClick = (event) => event.preventDefault();
+
+    const devToolsCheckInterval = setInterval(detectDevTools, 1000);
+
+    document.addEventListener("keydown", blockShortcuts);
+    document.addEventListener("contextmenu", disableRightClick);
+    window.addEventListener("resize", detectDevTools); // Recheck when resizing
+
+    return () => {
+      document.removeEventListener("keydown", blockShortcuts);
+      document.removeEventListener("contextmenu", disableRightClick);
+      window.removeEventListener("resize", detectDevTools);
+      clearInterval(devToolsCheckInterval);
+    };
+  }, []);
+
   // ... other state declarations remain the same
 
   useEffect(() => {
@@ -415,7 +132,7 @@ const ContestPage = () => {
         setContestInfo(response.data.contest);
         setQuestions(response.data.questions);
 
-        console.log(response);
+        // console.log(response);
 
         let tmpSolvedStatus = {};
         for (let i = 0; i < response.data.questions.length; i++) {

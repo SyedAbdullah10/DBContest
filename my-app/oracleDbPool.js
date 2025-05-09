@@ -31,7 +31,7 @@ async function initPool() {
     oracle_pool = await oracledb.createPool({
       user: 'contest_user',
       password: 'abc123',
-      connectString: '192.168.10.12:1521/XEPDB1', // Change this based on your Oracle setup
+      connectString: '172.16.71.234:1521/XEPDB1', // Change this based on your Oracle setup
       poolMin: 30,
       poolMax: 50,
       poolIncrement: 1
