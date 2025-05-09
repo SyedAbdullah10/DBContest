@@ -172,10 +172,33 @@ const formatTime = (dateObj) => {
 };
 
 // Calculate time remaining between now and a target date
-const calculateTimeLeft = (targetDate) => {
+const calculateTimeLeft = async (targetDate) => {
   if (!(targetDate instanceof Date) || isNaN(targetDate)) return "00:00:00";
 
-  const now = new Date();
+  // const now = new Date();
+  let now = null;
+
+        try {
+          const date_response = await axios.get("/api/get-current-datetime");
+          console.log(date_response);
+          now = date_response.data.now;
+        } catch (err) {
+          if (now == null) {
+            setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+            return;
+          }
+          console.error("Error", err);
+        }
+
+        // Set contest status
+        let diffInSeconds = 0;
+
+        console.log(new Date());
+
+        // console.log(now);
+
+        now = new Date(now);
+      
   const difference = targetDate - now;
 
   if (difference <= 0) return "00:00:00";
@@ -204,7 +227,7 @@ const useTimer = (targetDate) => {
 
     // Clean up interval
     return () => clearInterval(timer);
-  }, [targetDate]); // Only re-run if targetDate changes
+  }, []); // Only re-run if targetDate changes
 
   return timeLeft;
 };

@@ -8,11 +8,11 @@ export async function GET() {
       .select("id, name, startTime, endTime, password");
 
     if (error) {
-      console.error("Supabase fetch error:", error.message);
+      console.error("Supabase fetch error:", error);
       return NextResponse.json(
         { message: "Failed to fetch contests." },
         { status: 500 }
-      );
+      ); 
     }
 
     const ongoing = [];
