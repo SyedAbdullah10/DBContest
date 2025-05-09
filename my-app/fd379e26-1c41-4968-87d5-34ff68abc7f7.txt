@@ -80,4 +80,366 @@ Project Apollo,200,Project Zeus,268,Project Hera,170,Project Poseidon,215,Projec
 ====================================================================================================================================================================================
 
 
+    ====================================================================================================================================================================================
+hamza | Q4 | Wrong Answer | mysql | April 17, 2025 | 09:22:25 AM
+200,Ivan,Davis,1
+,201,David,Smith,3
+,202,Ivan,Brown,4
+,203,Eve,Moore,2
+,204,Bob,Johnson,3
+,205,Heidi,Brown,4
+,206,Carol,Taylor,2
+,207,Bob,Anderson,2
+,208,David,Johnson,5
+,209,Frank,Smith,4
+,210,Eve,Brown,1
+,211,Carol,Davis,1
+,212,Alice,Smith,5
+,213,Grace,Anderson,4
+,214,Heidi,Taylor,3
+,215,Frank,Moore,2
+,216,Heidi,Anderson,4
+,217,Bob,Miller,3
+,218,Heidi,Moore,5
+,219,Bob,Johnson,3
+
+Engineering,219952
+Human Resources,283375
+Marketing,366221
+Sales,373975
+Finance,209060
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q4 | Wrong Answer | postgresql | April 17, 2025 | 09:22:53 AM
+200,Ivan,Davis,1
+,201,David,Smith,3
+,202,Ivan,Brown,4
+,203,Eve,Moore,2
+,204,Bob,Johnson,3
+,205,Heidi,Brown,4
+,206,Carol,Taylor,2
+,207,Bob,Anderson,2
+,208,David,Johnson,5
+,209,Frank,Smith,4
+,210,Eve,Brown,1
+,211,Carol,Davis,1
+,212,Alice,Smith,5
+,213,Grace,Anderson,4
+,214,Heidi,Taylor,3
+,215,Frank,Moore,2
+,216,Heidi,Anderson,4
+,217,Bob,Miller,3
+,218,Heidi,Moore,5
+,219,Bob,Johnson,3
+
+Engineering,219952
+Human Resources,283375
+Marketing,366221
+Sales,373975
+Finance,209060
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q4 | Wrong Answer | oracle | April 17, 2025 | 09:22:59 AM
+200,Ivan,Davis,1
+,201,David,Smith,3
+,202,Ivan,Brown,4
+,203,Eve,Moore,2
+,204,Bob,Johnson,3
+,205,Heidi,Brown,4
+,206,Carol,Taylor,2
+,207,Bob,Anderson,2
+,208,David,Johnson,5
+,209,Frank,Smith,4
+,210,Eve,Brown,1
+,211,Carol,Davis,1
+,212,Alice,Smith,5
+,213,Grace,Anderson,4
+,214,Heidi,Taylor,3
+,215,Frank,Moore,2
+,216,Heidi,Anderson,4
+,217,Bob,Miller,3
+,218,Heidi,Moore,5
+,219,Bob,Johnson,3
+
+Engineering,219952
+Human Resources,283375
+Marketing,366221
+Sales,373975
+Finance,209060
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q4 | Wrong Answer | mysql | April 17, 2025 | 02:25:28 PM
+200,Ivan,Davis,1
+,201,David,Smith,3
+,202,Ivan,Brown,4
+,203,Eve,Moore,2
+,204,Bob,Johnson,3
+,205,Heidi,Brown,4
+,206,Carol,Taylor,2
+,207,Bob,Anderson,2
+,208,David,Johnson,5
+,209,Frank,Smith,4
+,210,Eve,Brown,1
+,211,Carol,Davis,1
+,212,Alice,Smith,5
+,213,Grace,Anderson,4
+,214,Heidi,Taylor,3
+,215,Frank,Moore,2
+,216,Heidi,Anderson,4
+,217,Bob,Miller,3
+,218,Heidi,Moore,5
+,219,Bob,Johnson,3
+
+Engineering,219952
+Human Resources,283375
+Marketing,366221
+Sales,373975
+Finance,209060
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q2 | Accepted | postgresql | May 9, 2025 | 09:11:23 AM
+Ivan,Davis,76318
+,David,Smith,52054
+,Ivan,Brown,86135
+,Eve,Moore,67652
+,Bob,Johnson,89656
+,Heidi,Brown,58590
+,Carol,Taylor,74757
+,Bob,Anderson,77065
+,David,Johnson,79422
+,Frank,Smith,87811
+,Eve,Brown,54808
+,Carol,Davis,88826
+,Alice,Smith,76592
+,Grace,Anderson,89474
+,Heidi,Taylor,67938
+,Frank,Moore,63901
+,Heidi,Anderson,51965
+,Bob,Miller,69426
+,Heidi,Moore,53046
+,Bob,Johnson,87147
+
+Ivan,Davis,76318
+David,Smith,52054
+Ivan,Brown,86135
+Eve,Moore,67652
+Bob,Johnson,89656
+Heidi,Brown,58590
+Carol,Taylor,74757
+Bob,Anderson,77065
+David,Johnson,79422
+Frank,Smith,87811
+Eve,Brown,54808
+Carol,Davis,88826
+Alice,Smith,76592
+Grace,Anderson,89474
+Heidi,Taylor,67938
+Frank,Moore,63901
+Heidi,Anderson,51965
+Bob,Miller,69426
+Heidi,Moore,53046
+Bob,Johnson,87147
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q3 | Wrong Answer | mysql | May 9, 2025 | 09:13:48 AM
+1001,Project Apollo,2
+,1002,Project Zeus,2
+,1003,Project Hera,2
+,1004,Project Poseidon,2
+,1005,Project Athena,2
+,1006,Project Ares,2
+,1007,Project Hermes,2
+,1008,Project Artemis,2
+,1009,Project Hades,2
+,1010,Project Dionysus,2
+
+Project Apollo,2
+Project Zeus,2
+Project Hera,2
+Project Poseidon,2
+Project Athena,2
+Project Ares,2
+Project Hermes,2
+Project Artemis,2
+Project Hades,2
+Project Dionysus,2
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q3 | Wrong Answer | mysql | May 9, 2025 | 09:14:10 AM
+1001,Project Apollo,2
+,1002,Project Zeus,2
+,1003,Project Hera,2
+,1004,Project Poseidon,2
+,1005,Project Athena,2
+,1006,Project Ares,2
+,1007,Project Hermes,2
+,1008,Project Artemis,2
+,1009,Project Hades,2
+,1010,Project Dionysus,2
+
+Project Apollo,2
+Project Zeus,2
+Project Hera,2
+Project Poseidon,2
+Project Athena,2
+Project Ares,2
+Project Hermes,2
+Project Artemis,2
+Project Hades,2
+Project Dionysus,2
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q3 | Wrong Answer | postgresql | May 9, 2025 | 09:14:19 AM
+1001,Project Apollo,2
+,1002,Project Zeus,2
+,1003,Project Hera,2
+,1004,Project Poseidon,2
+,1005,Project Athena,2
+,1006,Project Ares,2
+,1007,Project Hermes,2
+,1008,Project Artemis,2
+,1009,Project Hades,2
+,1010,Project Dionysus,2
+
+Project Apollo,2
+Project Zeus,2
+Project Hera,2
+Project Poseidon,2
+Project Athena,2
+Project Ares,2
+Project Hermes,2
+Project Artemis,2
+Project Hades,2
+Project Dionysus,2
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q3 | Wrong Answer | mysql | May 9, 2025 | 09:15:06 AM
+1001,Project Apollo,2
+,1002,Project Zeus,2
+,1003,Project Hera,2
+,1004,Project Poseidon,2
+,1005,Project Athena,2
+,1006,Project Ares,2
+,1007,Project Hermes,2
+,1008,Project Artemis,2
+,1009,Project Hades,2
+,1010,Project Dionysus,2
+
+Project Apollo,2
+Project Zeus,2
+Project Hera,2
+Project Poseidon,2
+Project Athena,2
+Project Ares,2
+Project Hermes,2
+Project Artemis,2
+Project Hades,2
+Project Dionysus,2
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q3 | Accepted | mysql | May 9, 2025 | 09:16:37 AM
+Project Apollo,2
+,Project Zeus,2
+,Project Hera,2
+,Project Poseidon,2
+,Project Athena,2
+,Project Ares,2
+,Project Hermes,2
+,Project Artemis,2
+,Project Hades,2
+,Project Dionysus,2
+
+Project Apollo,2
+Project Zeus,2
+Project Hera,2
+Project Poseidon,2
+Project Athena,2
+Project Ares,2
+Project Hermes,2
+Project Artemis,2
+Project Hades,2
+Project Dionysus,2
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q4 | Accepted | oracle | May 9, 2025 | 09:18:10 AM
+Engineering,219952
+,Human Resources,283375
+,Marketing,366221
+,Sales,373975
+,Finance,209060
+
+Engineering,219952
+Human Resources,283375
+Marketing,366221
+Sales,373975
+Finance,209060
+====================================================================================================================================================================================
+
+
+    ====================================================================================================================================================================================
+hamza | Q5 | Accepted | mysql | May 9, 2025 | 09:24:08 AM
+Ivan Davis,57
+,David Smith,127
+,Ivan Brown,53
+,Eve Moore,149
+,Bob Johnson,129
+,Heidi Brown,149
+,Carol Taylor,117
+,Bob Anderson,146
+,David Johnson,127
+,Frank Smith,139
+,Eve Brown,143
+,Carol Davis,141
+,Alice Smith,117
+,Grace Anderson,66
+,Heidi Taylor,137
+,Frank Moore,78
+,Heidi Anderson,132
+,Bob Miller,132
+,Heidi Moore,81
+,Bob Johnson,147
+
+Ivan Davis,57
+David Smith,127
+Ivan Brown,53
+Eve Moore,149
+Bob Johnson,129
+Heidi Brown,149
+Carol Taylor,117
+Bob Anderson,146
+David Johnson,127
+Frank Smith,139
+Eve Brown,143
+Carol Davis,141
+Alice Smith,117
+Grace Anderson,66
+Heidi Taylor,137
+Frank Moore,78
+Heidi Anderson,132
+Bob Miller,132
+Heidi Moore,81
+Bob Johnson,147
+====================================================================================================================================================================================
+
+
     
